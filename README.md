@@ -1,4 +1,4 @@
-# admin
+# adminSF
 
 > A admin scaffold front with vue and vuetify project.
 

@@ -1,5 +1,5 @@
 <template>
-  <v-app id="inspire">
+  <div>
     <v-navigation-drawer class="nav-drawer" fixed :clipped="$vuetify.breakpoint.mdAndUp" app v-model="drawer">
       <v-layout row class="user-details" align-center="true" justify-center>
         <v-layout justify-center style="margin-left:20px;">
@@ -47,12 +47,12 @@
     <v-content>
       <v-container fluid fill-height>
         <!-- <v-layout justify-center align-center> -->
-        <router-view/>
+        <router-view></router-view>
         <!-- </v-layout> -->
       </v-container>
     </v-content>
     <!-- <v-btn fab bottom right color="pink" dark fixed > -->
-  </v-app>
+  </div>
 </template>
 <style src="../assets/main.css" />
 <script>

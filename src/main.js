@@ -3,6 +3,8 @@ import App from './App'
 import router from './router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import './utils/utils'
+import axios from './utils/request'
 // import 'babel-polyfill'  //IE11 & Safari 9 support
 
 Vue.config.productionTip = false
@@ -19,6 +21,8 @@ Vue.use(Vuetify, {
     "success": "#4CAF50"
   }
 })
+
+Vue.prototype.axios = axios;
 
 /* eslint-disable no-new */
 new Vue({

@@ -12,7 +12,7 @@
           <v-card-text style="padding-top:0;margin-top:0;">
             <v-form v-model="valid" ref="form" lazy-validation>
               <v-text-field label="Username" v-model="username" :rules="nameRules" required></v-text-field>
-              <v-text-field name="password" label="Password" :rules="passwordRules" required :append-icon="showPassword ? 'visibility' : 'visibility_off'"
+              <v-text-field name="password" v-model="password" label="Password" :rules="passwordRules" required :append-icon="showPassword ? 'visibility' : 'visibility_off'"
                 :append-icon-cb="() => (showPassword = !showPassword)" :type="showPassword ? 'password' : 'text'"></v-text-field>
             </v-form>
           </v-card-text>
@@ -54,7 +54,17 @@
     },
     methods: {
       submit() {
+        console.log(this.username)
         if (this.$refs.form.validate()) {
+          let params = {
+            username: this.data.username,
+            password: this.data.password
+          }
+          this.axios.post('auth', params)
+            .then(response => {
+              console.log(response);
+              this.$router.push('/');
+            })
           // Native form submission is not yet supported
           // axios.post('/api/submit', {
           //   name: this.name,
@@ -62,7 +72,7 @@
           //   select: this.select,
           //   checkbox: this.checkbox
           // })
-          this.$router.push('/')
+
         }
       },
       clear() {
@@ -89,4 +99,3 @@
   }
 
 </style>
-

@@ -1,7 +1,7 @@
 <template>
   <v-container fill-height class="login-layout">
     <v-layout row wrap align-center>
-      <v-flex xs10 sm4 offset-sm4 offset-xs1 class="text-xs-center" style="padding:0 50px;">
+      <v-flex xs12 md4 offset-md4 sm8 offset-sm2 class="text-xs-center" style="padding:0 50px;">
         <v-avatar size="60" style="padding-bottom:30px;">
           <img src="/static/avatar.png" alt="user">
         </v-avatar>
@@ -20,7 +20,7 @@
             <v-spacer></v-spacer>
             <v-btn color="accent" @click="submit" :disabled="!valid">登 录</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="accent">注 册</v-btn>
+            <v-btn color="accent" @click="$store.commit('showSnackbar','注册')">注 册</v-btn>
             <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>
@@ -29,12 +29,17 @@
         </p>
       </v-flex>
     </v-layout>
+    <v-snackbar color="error" :timeout="2000" :top="true" v-model="isShowSnackbar">
+      {{this.$store.state.snackMsg}}
+      <v-btn flat dark @click.native="$store.commit('showSnackbar')">Close</v-btn>
+    </v-snackbar>
   </v-container>
 </template>
 <script>
   export default {
     data() {
       return {
+        snackbar: false,
         showPassword: true,
         valid: true,
         username: '',
@@ -52,27 +57,31 @@
         ]
       }
     },
+    computed: {
+      isShowSnackbar: {
+        get() {
+          return this.$store.state.isShowSnackbar
+        },
+        set(value) {
+          this.$store.commit('showSnackbar')
+        }
+      }
+    },
     methods: {
       submit() {
-        console.log(this.username)
+        this.valid = false;
         if (this.$refs.form.validate()) {
           let params = {
-            username: this.data.username,
-            password: this.data.password
+            username: this.username,
+            password: this.password
           }
           this.axios.post('auth', params)
             .then(response => {
-              console.log(response);
-              this.$router.push('/');
+              this.valid = true;
+              if (response.status == 200) {
+                this.$router.push('/');
+              }
             })
-          // Native form submission is not yet supported
-          // axios.post('/api/submit', {
-          //   name: this.name,
-          //   email: this.email,
-          //   select: this.select,
-          //   checkbox: this.checkbox
-          // })
-
         }
       },
       clear() {

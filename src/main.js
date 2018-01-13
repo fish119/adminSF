@@ -4,8 +4,9 @@ import router from './router'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import './utils/utils'
+import store from './store'
 import axios from './utils/request'
-// import 'babel-polyfill'  //IE11 & Safari 9 support
+import 'babel-polyfill'  //IE11 & Safari 9 support
 
 Vue.config.productionTip = false
 import colors from 'vuetify/es5/util/colors'
@@ -23,11 +24,13 @@ Vue.use(Vuetify, {
 })
 
 Vue.prototype.axios = axios;
+Vue.prototype.store = store;
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
+  store,
   template: '<App/>',
   components: {
     App

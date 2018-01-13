@@ -1,6 +1,6 @@
 import axios from 'axios'
 import NProgress from './utils'
-
+import store from '../store/'
 // axios 配置
 axios.defaults.timeout = 5000;
 axios.defaults.baseURL = 'http://localhost:9999/';
@@ -16,32 +16,42 @@ axios.interceptors.request.use(
   },
   err => {
     NProgress.done();
-    return Promise.reject(err);
+    store.commit('showSnackbar', '网络异常，请稍后重试')
+    return Promise.resolve(err);
   });
 
 // http response 拦截器
-axios.interceptors.response.use(
-  response => {
-    NProgress.done();
-    return response;
-  },
-  error => {
-    NProgress.done();
-    // if (error.response) {
-    //   switch (error.response.status) {
-    //     case 401:
-    //       // 401 清除token信息并跳转到登录页面
-    //       store.commit(types.LOGOUT);
-    //       router.replace({
-    //         path: 'login',
-    //         query: {
-    //           redirect: router.currentRoute.fullPath
-    //         }
-    //       })
-    //   }
-    // }
-    // console.log(JSON.stringify(error));//console : Error: Request failed with status code 402
-    return Promise.reject(error)
-  });
+
+axios.interceptors.response.use(data => {
+  NProgress.done();
+  return data;
+}, error => {
+  NProgress.done();
+  console.log(error.response.data.path)
+  if (error.response) {
+    switch (error.response.status) {
+      case 404:
+        store.commit('showSnackbar', '请求的页面或地址不存在');
+        break;
+      case 504:
+        store.commit('showSnackbar', '请求的页面或地址不存在');
+        break;
+      case 403:
+        store.commit('showSnackbar', '权限不足，请联系管理员');
+        break;
+      case 401:
+        if (error.response.data.path === '/auth') {
+          store.commit('showSnackbar', '用户名密码错误，请确认后重试');
+        } else {
+          store.commit('showSnackbar', '权限不足，请联系管理员');
+        }
+        break;
+    }
+  } else {
+    store.commit('showSnackbar', '网络异常，请稍后重试');
+  }
+  // return Promise.resolve(error);
+  return Promise.resolve(error);
+});
 
 export default axios;

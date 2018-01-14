@@ -4,6 +4,7 @@ import store from '../store/'
 // axios 配置
 axios.defaults.timeout = 5000;
 axios.defaults.baseURL = 'http://localhost:9999/';
+axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
 
 //TODO; http request 拦截器，设置header中的token，参数名为Authorization
 axios.interceptors.request.use(
@@ -17,7 +18,7 @@ axios.interceptors.request.use(
   err => {
     NProgress.done();
     store.commit('showSnackbar', '网络异常，请稍后重试')
-    return Promise.resolve(err);
+    return Promise.reject(err);
   });
 
 // http response 拦截器
@@ -27,7 +28,7 @@ axios.interceptors.response.use(data => {
   return data;
 }, error => {
   NProgress.done();
-  console.log(error.response.data.path)
+  console.log(error)
   if (error.response) {
     switch (error.response.status) {
       case 404:
@@ -47,11 +48,12 @@ axios.interceptors.response.use(data => {
         }
         break;
     }
+    return Promise.resolve(error.response);
   } else {
     store.commit('showSnackbar', '网络异常，请稍后重试');
+    return Promise.resolve(error);
   }
   // return Promise.resolve(error);
-  return Promise.resolve(error);
 });
 
 export default axios;

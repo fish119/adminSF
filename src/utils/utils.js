@@ -11,8 +11,11 @@ router.beforeEach((to, from, next) => {
   if (to.path === '/login') {
     next();
   } else {
-    //TODO;
-    next();
+    if (window.localStorage.getItem('token')) {
+      next();
+    } else {
+      next('login')
+    }
   }
 })
 

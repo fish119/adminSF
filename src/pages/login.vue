@@ -11,8 +11,8 @@
           </v-card-title>
           <v-card-text style="padding-top:0;margin-top:0;">
             <v-form v-model="valid" ref="form" lazy-validation>
-              <v-text-field label="Username" v-model="username" :rules="nameRules" required></v-text-field>
-              <v-text-field name="password" v-model="password" label="Password" :rules="passwordRules" required :append-icon="showPassword ? 'visibility' : 'visibility_off'"
+              <v-text-field v-on:keyup.13="submit" label="Username" v-model="username" :rules="nameRules" required></v-text-field>
+              <v-text-field v-on:keyup.13="submit" name="password" v-model="password" label="Password" :rules="passwordRules" required :append-icon="showPassword ? 'visibility' : 'visibility_off'"
                 :append-icon-cb="() => (showPassword = !showPassword)" :type="showPassword ? 'password' : 'text'"></v-text-field>
             </v-form>
           </v-card-text>
@@ -79,7 +79,11 @@
             .then(response => {
               this.valid = true;
               if (response.status == 200) {
-                this.$router.push('/');
+                if (response.data.token) {
+                  window.localStorage.setItem('username',this.username);
+                  window.localStorage.setItem('token', "fish119"+response.data.token)
+                  this.$router.push('/');
+                }
               }
             })
         }

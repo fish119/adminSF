@@ -4,11 +4,11 @@
       <v-layout row class="user-details" align-center="true" justify-center>
         <v-layout justify-center style="margin-left:20px;">
           <v-avatar size="48">
-            <img width="48px;" src="/static/avatar.png" alt="user">
+            <img width="48px;" :src="avatar" alt="user">
           </v-avatar>
         </v-layout>
         <v-layout style="margin-left:-10px;">
-          <p class="username">User Name</p>
+          <p class="username">{{username}}</p>
         </v-layout>
       </v-layout>
       <v-list>
@@ -33,7 +33,7 @@
       <v-toolbar-title class="ml-0 pl-3">
         <v-btn icon large @click.stop="drawer = !drawer">
           <v-avatar size="50px" tile>
-            <img src="/static/avatar.png" alt="Vuetify">
+            <img src="/static/logo.png" alt="Vuetify">
           </v-avatar>
         </v-btn>
         <span>Fish119 Admin Template</span>
@@ -50,6 +50,10 @@
         <router-view></router-view>
         <!-- </v-layout> -->
       </v-container>
+      <v-snackbar color="error" :timeout="2000" :top="true" v-model="isShowSnackbar">
+        {{this.$store.state.snackMsg}}
+        <v-btn flat dark @click.native="$store.commit('showSnackbar')">Close</v-btn>
+      </v-snackbar>
     </v-content>
     <!-- <v-btn fab bottom right color="pink" dark fixed > -->
   </div>
@@ -58,6 +62,8 @@
 <script>
   export default {
     data: () => ({
+      username:'',
+      avatar:'/static/avatar.png',
       dialog: false,
       drawer: null,
       items: [{
@@ -89,11 +95,32 @@
         }
       ]
     }),
+    computed: {
+      isShowSnackbar: {
+        get() {
+          return this.$store.state.isShowSnackbar
+        },
+        set(value) {
+          this.$store.commit('showSnackbar')
+        }
+      }
+    },
     methods: {
+      getIndexData(username){
+        console.log(username)
+        this.axios.post('index',{username:username}).then(response => {
+          this.username = response.data.user.username
+          this.avatar = response.data.user.avatar
+            console.log(response)
+        })
+      },
       logout: function () {
         window.localStorage.clear();
         this.$router.push('/login');
       }
+    },
+    mounted() {
+      this.getIndexData(window.localStorage.getItem('username'))
     }
   }
 

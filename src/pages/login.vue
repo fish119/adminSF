@@ -3,7 +3,7 @@
     <v-layout row wrap align-center>
       <v-flex xs12 md4 offset-md4 sm8 offset-sm2 class="text-xs-center" style="padding:0 50px;">
         <v-avatar size="60" style="padding-bottom:30px;">
-          <img src="/static/avatar.png" alt="user">
+          <img src="/static/logo.png" alt="user">
         </v-avatar>
         <v-card class="card" color="#fff">
           <v-card-title class="text-xs-center">
@@ -42,13 +42,13 @@
         snackbar: false,
         showPassword: true,
         valid: true,
-        username: '',
+        username: 'string',
         nameRules: [
           (v) => !!v || 'Username is required',
           (v) => v && v.length >= 6 || 'Username must be more than 6 characters',
           (v) => v && v.length <= 20 || 'Username must be less than 20 characters'
         ],
-        password: '',
+        password: 'string',
         passwordRules: [
           (v) => !!v || 'Password is required',
           // (v) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
@@ -80,7 +80,6 @@
               this.valid = true;
               if (response.status == 200) {
                 if (response.data.token) {
-                  window.localStorage.setItem('username',this.username);
                   window.localStorage.setItem('token', "fish119"+response.data.token)
                   this.$router.push('/');
                 }

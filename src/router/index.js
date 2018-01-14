@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import index from '@/pages/index'
 import login from '@/pages/login'
 import main from '@/pages/main'
+import user from '@/pages/settings/user'
 
 Vue.use(Router)
 
@@ -20,6 +21,10 @@ export default new Router({
       path: '/main',
       name: 'main',
       component: main
+    }, {
+      path: '/settings/user',
+      name: '/settings/user',
+      component: user
     }]
   }, {
     path: '/*',

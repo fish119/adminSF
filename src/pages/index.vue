@@ -18,7 +18,7 @@
               <v-list-tile-title>{{ item.title }}</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
-          <v-list-tile v-for="subItem in item.items" v-bind:key="subItem.title" :to="subItem.action">
+          <v-list-tile v-for="subItem in item.childrenMenu" v-bind:key="subItem.title" :to="subItem.action">
             <v-list-tile-action class="list-sub-item-icon">
               <v-icon>{{ subItem.icon }}</v-icon>
             </v-list-tile-action>
@@ -64,37 +64,7 @@
       avatar: '/static/avatar.png',
       dialog: false,
       drawer: null,
-      items: [{
-          icon: 'home',
-          title: '首页',
-          items: [{
-            action: '/main',
-            icon: 'dashboard',
-            title: 'dashboard'
-          }]
-        },
-        {
-          icon: 'settings',
-          title: '系统设置',
-          items: [{
-              action: '/settings/user',
-              icon: 'account_circle',
-              title: '用户管理'
-            }, {
-              icon: 'supervisor_account',
-              title: '角色管理'
-            }, {
-              icon: 'lock',
-              title: '权限管理'
-            },
-            {
-              icon: 'menu',
-              title: '菜单管理'
-            }
-
-          ]
-        }
-      ]
+      items: []
     }),
     computed: {
       isShowSnackbar: {
@@ -112,11 +82,11 @@
           if (response.data.user) {
             this.username = response.data.user.username;
             this.avatar = response.data.user.avatar;
+            this.items = response.data.menus;
           }
         })
       },
       menuClick: function (action) {
-        console.log(action)
         this.$router.push(action);
       },
       logout: function () {

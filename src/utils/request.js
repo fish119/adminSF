@@ -18,7 +18,7 @@ axios.interceptors.request.use(
   },
   err => {
     NProgress.done();
-    store.commit('showSnackbar', '网络异常，请稍后重试')
+    store.commit('showSnackbar', {msg:'网络异常，请稍后重试'})
     return Promise.reject(err);
   });
 
@@ -32,33 +32,35 @@ axios.interceptors.response.use(data => {
   if (error.response) {
     switch (error.response.status) {
       case 404:
-        store.commit('showSnackbar', '请求的页面或地址不存在');
+        store.commit('showSnackbar',{msg: '请求的页面或地址不存在'});
+        break;
+        case 405:
+        store.commit('showSnackbar',{msg: '权限不足，该方法不允许执行'});
         break;
       case 504:
-        store.commit('showSnackbar', '请求的页面或地址不存在');
+        store.commit('showSnackbar', {msg:'请求的页面或地址不存在'});
         break;
       case 403:
-        store.commit('showSnackbar', error.response.data.message);
+        store.commit('showSnackbar', {msg:error.response.data.message});
         break;
       case 401:
         if (error.response.data.path === '/auth') {
-          store.commit('showSnackbar', '用户名密码错误，请确认后重试');
+          store.commit('showSnackbar', {msg:'用户名密码错误，请确认后重试'});
         } else {
-          store.commit('showSnackbar', error.response.data.message);
-          if( error.response.data.message === '认证超时，请重新登录。'){
+          store.commit('showSnackbar', {msg:error.response.data.message});
+          if( error.response.data.message === {msg:'认证超时，请重新登录。'}){
             window.localStorage.removeItem('token');
             router.push('/login');
           }
         }
         break;
       case 500:
-        console.log(error.response);
-        store.commit('showSnackbar', error.response.data.message);
+        store.commit('showSnackbar', {msg:error.response.data.message});
         break;
     }
     return Promise.resolve(error.response);
   } else {
-    store.commit('showSnackbar', '网络异常，请稍后重试');
+    store.commit('showSnackbar', {msg:'网络异常，请稍后重试'});
     return Promise.resolve(error);
   }
   // return Promise.resolve(error);

@@ -6,12 +6,19 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     isShowSnackbar: false,
-    snackMsg:''
+    snackMsg:'',
+    snackbarColor:'error'
   },
   mutations: {
-    showSnackbar(state,newMsg){
-      state.snackMsg = newMsg?newMsg:'';
-      state.isShowSnackbar = !state.isShowSnackbar
+    showSnackbar(state,option){
+      if(option){
+        state.snackMsg = option.msg?option.msg:'';      
+        state.snackbarColor = option.color?option.color:'error';
+      }
+      state.isShowSnackbar = !state.isShowSnackbar;
+    },
+    setSnackbarColor(state,color){
+       state.snackbarColor = color?color:'error';
     }
   }
 })

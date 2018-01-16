@@ -48,7 +48,7 @@
         <router-view></router-view>
         <!-- </v-layout> -->
       </v-container>
-      <v-snackbar color="error" :timeout="2000" :top="true" v-model="isShowSnackbar">
+      <v-snackbar :color="snackbarColor" :timeout="2000" :top="true" v-model="isShowSnackbar">
         {{this.$store.state.snackMsg}}
         <v-btn flat dark @click.native="$store.commit('showSnackbar')">Close</v-btn>
       </v-snackbar>
@@ -73,6 +73,14 @@
         },
         set(value) {
           this.$store.commit('showSnackbar')
+        }
+      },
+      snackbarColor: {
+        get() {
+          return this.$store.state.snackbarColor
+        },
+        set(value) {
+          this.$store.commit('setSnackbarColor')
         }
       }
     },

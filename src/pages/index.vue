@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-navigation-drawer class="nav-drawer" fixed :clipped="$vuetify.breakpoint.mdAndUp" app v-model="drawer">
+    <v-navigation-drawer width="240" class="nav-drawer" fixed :clipped="$vuetify.breakpoint.mdAndUp" app v-model="drawer">
       <v-layout row class="user-details" align-center="true" justify-center>
         <v-layout justify-center style="margin-left:20px;">
           <v-avatar size="48">

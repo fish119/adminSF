@@ -4,6 +4,8 @@ import index from '@/pages/index'
 import login from '@/pages/login'
 import main from '@/pages/main'
 import user from '@/pages/settings/user'
+import menu from '@/pages/settings/menu'
+
 
 Vue.use(Router)
 
@@ -25,6 +27,10 @@ export default new Router({
       path: '/settings/user',
       name: '/settings/user',
       component: user
+    }, {
+      path: '/settings/menu',
+      name: '/settings/menu',
+      component: menu
     }]
   }, {
     path: '/*',

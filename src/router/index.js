@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import index from '@/pages/index'
 import login from '@/pages/login'
 import main from '@/pages/main'
+import pagenotfound from '@/pages/404'
 import user from '@/pages/settings/user'
 import menu from '@/pages/settings/menu'
 import authority from '@/pages/settings/authority'
@@ -24,6 +25,10 @@ export default new Router({
       path: '/main',
       name: 'main',
       component: main
+    },{
+      path: '/404',
+      name: '404',
+      component: pagenotfound
     }, {
       path: '/settings/user',
       name: '/settings/user',
@@ -39,6 +44,6 @@ export default new Router({
     }]
   }, {
     path: '/*',
-    redirect: '/'
+    redirect: '/404'
   }]
 })

@@ -25,7 +25,7 @@
             <v-card-text>
               <v-navigation-drawer width="240px;" floating permanent>
                 <v-list>
-                  <v-list-group v-for="item in items" v-bind:key="item.id" @click.native="menuClick(item,null)">
+                  <v-list-group v-for="item in items" v-bind:key="item.id" prepend-icon="done" @click.native="menuClick(item,null)">
                     <v-list-tile slot="activator">
                       <v-list-tile-content>
                         <v-list-tile-title>{{ item.name }}</v-list-tile-title>
@@ -33,7 +33,7 @@
                     </v-list-tile>
                     <v-list-tile v-for="subItem in item.children" v-bind:key="subItem.id" @click.native.stop="menuClick(subItem,item)" @click="1==1">
                       <v-list-tile-action class="list-sub-item-icon">
-                        <v-icon>{{ subItem.icon }}</v-icon>
+                        <v-icon>sort</v-icon>
                       </v-list-tile-action>
                       <v-list-tile-title>{{ subItem.name }}</v-list-tile-title>
                     </v-list-tile>
@@ -48,11 +48,26 @@
             <v-card-text style="padding-bottom:0;">
               <v-form v-model="valid" ref="authorityForm">
                 <v-layout row wrap flex align-center justify-center>
-                  <v-flex md1 hidden-xs-only>
-                    父 级：
+                  <v-flex sm5 xs12>
+                    <v-layout row wrap flex align-center justify-center>
+                      <v-flex xs3>
+                        父 级：
+                      </v-flex>
+                      <v-flex xs9>
+                        <v-select clearable item-text="name" v-bind:items="items" v-model="parentAuthority" label="请选择父级" single-line bottom></v-select>
+                      </v-flex>
+                    </v-layout>
                   </v-flex>
-                  <v-flex md11>
-                    <v-select clearable item-text="name" v-bind:items="items" v-model="parentAuthority" label="请选择父级" single-line bottom></v-select>
+                  <v-flex sm2></v-flex>
+                  <v-flex sm5 xs12>
+                    <v-layout row wrap flex align-center justify-center>
+                      <v-flex xs3 >
+                        方 法：
+                      </v-flex>
+                      <v-flex xs9>
+                        <v-select v-bind:items="methods" v-model="authority.method" single-line bottom :rules="requiredRules" required></v-select>
+                      </v-flex>
+                    </v-layout>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap flex align-center justify-center>
@@ -126,6 +141,27 @@
         dialog: false,
         valid: true,
         items: [],
+        methods: [{
+            text: 'ALL',
+            value: 'ALL'
+          },
+          {
+            text: 'GET',
+            value: 'GET'
+          },
+          {
+            text: 'POST',
+            value: 'POST'
+          },
+          {
+            text: 'PUT',
+            value: 'PUT'
+          },
+          {
+            text: 'DELETE',
+            value: 'DELETE'
+          }
+        ],
         breadcrumbsItems: [{
             text: '系统设置',
             disabled: false
@@ -137,7 +173,7 @@
         ],
         authority: {
           id: null,
-          description:'',
+          description: '',
           name: '',
           sort: 0,
           url: '',
@@ -165,7 +201,7 @@
       addAuthority() {
         this.authority = {
           id: null,
-          description:'',
+          description: '',
           name: '',
           sort: 0,
           url: '',
@@ -191,16 +227,17 @@
               }
             })
           } else {
-            this.axios.delete('setting/authorities/' + this.parentAuthority.id + '/authorities/' + this.authority.id).then(response => {
-              if (response.status == 200) {
-                this.items = response.data.data;
-                this.store.commit('showSnackbar', {
-                  msg: '操作成功',
-                  color: 'success'
-                });
-                this.clear();
-              }
-            })
+            this.axios.delete('setting/authorities/' + this.parentAuthority.id + '/authorities/' + this.authority.id).then(
+              response => {
+                if (response.status == 200) {
+                  this.items = response.data.data;
+                  this.store.commit('showSnackbar', {
+                    msg: '操作成功',
+                    color: 'success'
+                  });
+                  this.clear();
+                }
+              })
           }
         }
         this.dialog = false;
@@ -208,8 +245,8 @@
       saveAuthority() {
         this.valid = false;
         if (this.$refs.authorityForm.validate()) {
-          if(!this.authority.url){
-            this.authority.url="/"
+          if (!this.authority.url) {
+            this.authority.url = "/"
           }
           let params = {
             parentId: this.parentAuthority == null ? null : this.parentAuthority.id,

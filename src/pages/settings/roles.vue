@@ -24,7 +24,7 @@
             </v-flex>
             <v-card-text>
               <v-list>
-                <v-list-tile v-ripple avatar v-for="item in items" v-bind:key="item.name" @click="1==1">
+                <v-list-tile v-ripple avatar v-for="item in items" v-bind:key="item.name" @click="roleClick(item)">
                   <v-icon>supervisor_account</v-icon>
                   <v-list-tile-title style="margin-left:10px;">{{ item.name }}</v-list-tile-title>
                 </v-list-tile>
@@ -35,7 +35,7 @@
         <v-flex sm9>
           <v-card>
             <v-card-text style="padding-bottom:0;">
-              <v-form v-model="valid" ref="menuForm">
+              <v-form v-model="valid" ref="roleForm">
                 <v-layout row wrap flex align-center justify-center>
                   <v-flex md1 hidden-xs-only>
                     名 称：
@@ -59,20 +59,25 @@
                     </v-layout>
                   </v-flex>
                 </v-layout>
-                <v-divider></v-divider>
-                <v-subheader style="padding-left:0;height:36px;">权 限</v-subheader>
-                <v-layout row wrap align-center v-for="aitem in authorities" v-bind:key="aitem.id" style="padding-top:0;">
-                  <v-flex xs12>
-                    <h4>{{aitem.name}}</h4>
-                  </v-flex>
-                  <v-flex xs12>
-                    <v-layout row wrap>
-                      <v-flex xs6 sm4 md3 v-for="child in aitem.children" v-bind:key="child.id" style="padding-top:0;">
-                        <v-switch :label="child.name" v-model="role.authorities" :value="child"></v-switch>
-                      </v-flex>
-                    </v-layout>
-                  </v-flex>                 
+                <v-layout row wrap>
+                  <v-subheader style="padding-left:0;height:36px;" color="accent">权 限:
+                  </v-subheader>
+                  <v-switch :label="hasAllAuth?'全不选':'全选'" v-model="hasAllAuth" @click.native="selectAll()"></v-switch>
                 </v-layout>
+                <v-expansion-panel style="margin-bottom:20px;background: #fafafa;">
+                  <v-expansion-panel-content v-for="aitem in authorities" :key="aitem.id">
+                    <div slot="header">{{aitem.name}}</div>
+                    <v-card>
+                      <v-card-text style="padding-bottom:0!important;margin:0!important;" class="grey lighten-3">
+                        <v-layout row wrap>
+                          <v-flex xs6 sm4 md3 v-for="child in aitem.children" v-bind:key="child.id" style="padding-top:0;">
+                            <v-switch :label="child.name" v-model="selectedAuths" :value="selectedAuths.find(o => o.id === child.id)?selectedAuths.find(o => o.id === child.id):child"></v-switch>
+                          </v-flex>
+                        </v-layout>
+                      </v-card-text>
+                    </v-card>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
               </v-form>
             </v-card-text>
             <v-card-actions style="padding-top:0;">
@@ -86,13 +91,25 @@
         </v-flex>
       </v-layout>
     </v-container>
+    <v-dialog v-model="dialog" persistent max-width="600">
+      <v-card>
+        <v-card-title class="headline">确定要删除这条记录吗？删除后不可恢复。</v-card-title>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click.native="dialog = false">取 消</v-btn>
+          <v-btn color="accent" @click.native="delRole">确 定</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
   export default {
     data() {
       return {
+        dialog: false,
         valid: true,
+        hasAllAuth: false,
         items: [],
         role: {
           id: null,
@@ -101,6 +118,7 @@
           authorities: []
         },
         authorities: [],
+        selectedAuths: [],
         breadcrumbsItems: [{
             text: '系统设置',
             disabled: false
@@ -131,9 +149,40 @@
           }
         })
       },
-      saveRole() {},
+      saveRole() {
+        this.valid = false;
+        if (this.$refs.roleForm.validate()) {
+          this.role.authorities = this.selectedAuths;
+          let params = {
+            role: this.role
+          }
+          this.axios.post('setting/roles', params).then(response => {
+            if (response.status == 200) {
+              this.items = response.data.data;
+              this.store.commit('showSnackbar', {
+                msg: '操作成功',
+                color: 'success'
+              });
+            }
+          })
+        }
+      },
+      delRole() {
+        if (this.role != null && this.role.id != null) {
+          this.axios.delete('setting/role/' + this.role.id).then(response => {
+            if (response.status == 200) {
+              this.items = response.data.data;
+              this.store.commit('showSnackbar', {
+                msg: '操作成功',
+                color: 'success'
+              });
+            }
+          })
+        }
+        this.dialog = false;
+      },
       openDel() {
-        if (this.menu != null && this.menu.id != null) {
+        if (this.role != null && this.role.id != null) {
           this.dialog = true;
         }
       },
@@ -141,8 +190,24 @@
         this.role = {
           id: null,
           sort: 0,
-          name: ''
+          name: '',
+          authorities: []
         }
+        this.selectedAuths = [];
+        this.hasAllAuth = false;
+      },
+      selectAll() {
+        this.selectedAuths = [];
+        if (this.hasAllAuth) {
+          for (var i = 0; i < this.authorities.length; i++) {
+            this.selectedAuths = this.selectedAuths.concat(this.authorities[i].children)
+          }
+        }
+      },
+      roleClick(item) {
+        this.role = item;
+        this.selectedAuths = this.role.authorities;
+        this.hasAllAuth = false;
       }
     },
     mounted() {

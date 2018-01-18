@@ -4,9 +4,10 @@ import index from '@/pages/index'
 import login from '@/pages/login'
 import main from '@/pages/main'
 import pagenotfound from '@/pages/404'
-import user from '@/pages/settings/user'
-import menu from '@/pages/settings/menu'
-import authority from '@/pages/settings/authority'
+import users from '@/pages/settings/users'
+import menus from '@/pages/settings/menus'
+import authorities from '@/pages/settings/authorities'
+import roles from '@/pages/settings/roles'
 
 
 Vue.use(Router)
@@ -30,17 +31,21 @@ export default new Router({
       name: '404',
       component: pagenotfound
     }, {
-      path: '/settings/user',
-      name: '/settings/user',
-      component: user
+      path: '/settings/users',
+      name: '/settings/users',
+      component: users
     }, {
-      path: '/settings/menu',
-      name: '/settings/menu',
-      component: menu
+      path: '/settings/menus',
+      name: '/settings/menus',
+      component: menus
     }, {
-      path: '/settings/authority',
-      name: '/settings/authority',
-      component: authority
+      path: '/settings/authorities',
+      name: '/settings/authorities',
+      component: authorities
+    }, {
+      path: '/settings/roles',
+      name: '/settings/roles',
+      component: roles
     }]
   }, {
     path: '/*',

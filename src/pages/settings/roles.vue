@@ -59,28 +59,52 @@
                     </v-layout>
                   </v-flex>
                 </v-layout>
-                <v-layout row wrap>
-                  <v-subheader style="padding-left:0;height:36px;" color="accent">权 限:
-                  </v-subheader>
-                  <v-switch :label="hasAllAuth?'全不选':'全选'" v-model="hasAllAuth" @click.native="selectAll()"></v-switch>
-                </v-layout>
-                <v-expansion-panel style="margin-bottom:20px;background: #fafafa;">
-                  <v-expansion-panel-content v-for="aitem in authorities" :key="aitem.id">
-                    <div slot="header">{{aitem.name}}</div>
-                    <v-card>
-                      <v-card-text style="padding-bottom:0!important;margin:0!important;" class="grey lighten-3">
-                        <v-layout row wrap>
-                          <v-flex xs6 sm4 md3 v-for="child in aitem.children" v-bind:key="child.id" style="padding-top:0;">
-                            <v-switch :label="child.name" v-model="selectedAuths" :value="selectedAuths.find(o => o.id === child.id)?selectedAuths.find(o => o.id === child.id):child"></v-switch>
-                          </v-flex>
-                        </v-layout>
-                      </v-card-text>
-                    </v-card>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+                <v-tabs color="cyan" dark fixed-tabs style="background:#fafafa;">
+                  <v-tab key="权限" ripple>
+                    权限
+                    <!-- <v-switch  v-model="hasAllAuth" @click.native="selectAll()"></v-switch> -->
+                  </v-tab>
+                  <v-tab-item key="权限" style="padding:10px;">
+                    <v-expansion-panel style="margin:0 ,10px!important;">
+                      <v-expansion-panel-content v-for="aitem in authorities" :key="aitem.id">
+                        <div slot="header">{{aitem.name}}</div>
+                        <v-card>
+                          <v-card-text style="padding-bottom:0!important;margin:0!important;" class="grey lighten-3">
+                            <v-layout row wrap>
+                              <v-flex xs6 sm4 md3 v-for="child in aitem.children" v-bind:key="child.id" style="padding-top:0;">
+                                <v-switch :label="child.name" v-model="selectedAuths" :value="selectedAuths.find(o => o.id === child.id)?selectedAuths.find(o => o.id === child.id):child"></v-switch>
+                              </v-flex>
+                            </v-layout>
+                          </v-card-text>
+                        </v-card>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-tab-item>
+                  <v-tab key="菜单" ripple>
+                    菜单
+                  </v-tab>
+                  <v-tab-item key="菜单" style="padding:10px;">
+                    <v-expansion-panel style="margin:0 ,10px!important;">
+                      <v-expansion-panel-content v-for="mitem in menus" :key="mitem.id">
+                        <div slot="header">
+                          <v-switch @click.native.stop="1==1" :label="mitem.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === mitem.id)?selectedMenus.find(o => o.id === mitem.id):mitem"></v-switch>
+                        </div>
+                        <v-card>
+                          <v-card-text style="padding-bottom:0!important;margin:0!important;" class="grey lighten-3">
+                            <v-layout row wrap>
+                              <v-flex xs6 sm4 md3 v-for="child in mitem.children" v-bind:key="child.id" style="padding-top:0;">
+                                <v-switch class="my-switch" :label="child.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === child.id)?selectedMenus.find(o => o.id === child.id):child"></v-switch>
+                              </v-flex>
+                            </v-layout>
+                          </v-card-text>
+                        </v-card>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-tab-item>
+                </v-tabs>
               </v-form>
             </v-card-text>
-            <v-card-actions style="padding-top:0;">
+            <v-card-actions style="padding-top:10px;">
               <v-spacer></v-spacer>
               <v-btn color="primary" @click="saveRole">保 存</v-btn>
               <v-spacer></v-spacer>
@@ -119,6 +143,8 @@
         },
         authorities: [],
         selectedAuths: [],
+        menus: [],
+        selectedMenus: [],
         breadcrumbsItems: [{
             text: '系统设置',
             disabled: false
@@ -142,6 +168,13 @@
           }
         })
       },
+      getMenus() {
+        this.axios.get('setting/menus').then(response => {
+          if (response.status == 200) {
+            this.menus = response.data.data;
+          }
+        })
+      },
       getAuthorities() {
         this.axios.get('setting/authorities').then(response => {
           if (response.status == 200) {
@@ -153,6 +186,7 @@
         this.valid = false;
         if (this.$refs.roleForm.validate()) {
           this.role.authorities = this.selectedAuths;
+          this.role.menus = this.selectedMenus;
           let params = {
             role: this.role
           }
@@ -191,9 +225,11 @@
           id: null,
           sort: 0,
           name: '',
-          authorities: []
+          authorities: [],
+          menus: []
         }
         this.selectedAuths = [];
+        this.menus = [];
         this.hasAllAuth = false;
       },
       selectAll() {
@@ -207,19 +243,27 @@
       roleClick(item) {
         this.role = item;
         this.selectedAuths = this.role.authorities;
+        this.selectedMenus = this.role.menus;
         this.hasAllAuth = false;
       }
     },
     mounted() {
       this.getRoles();
       this.getAuthorities();
+      this.getMenus();
     }
   }
 
 </script>
-<style scoped>
+<style >
   .list__tile--avatar {
     height: 48px;
   }
 
+  .switch>label {
+    font-size: 14px !important;
+  }
+.switch>.input-group__details{
+  min-height: 5px !important;
+}
 </style>

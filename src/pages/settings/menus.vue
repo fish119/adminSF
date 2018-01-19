@@ -31,12 +31,14 @@
                         <v-list-tile-title>{{ item.title }}</v-list-tile-title>
                       </v-list-tile-content>
                     </v-list-tile>
-                    <v-list-tile v-for="subItem in item.childrenMenu" v-bind:key="subItem.id" @click.native.stop="menuClick(subItem,item)" @click="1==1">
-                      <v-list-tile-action class="list-sub-item-icon">
-                        <v-icon>{{ subItem.icon }}</v-icon>
-                      </v-list-tile-action>
-                      <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
-                    </v-list-tile>
+                    <v-list>
+                      <v-list-tile v-for="subItem in item.children" v-bind:key="subItem.id" @click.native.stop="menuClick(subItem,item)" @click="1==1">
+                        <v-list-tile-action class="list-sub-item-icon">
+                          <v-icon>{{ subItem.icon }}</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
+                      </v-list-tile>
+                    </v-list>
                   </v-list-group>
                 </v-list>
               </v-navigation-drawer>
@@ -52,7 +54,8 @@
                     父 级：
                   </v-flex>
                   <v-flex md11>
-                    <v-select clearable item-text="title" v-bind:items="items" v-model="parentMenu" label="请选择父级" single-line bottom></v-select>
+                    <v-select clearable item-text="title" :rules="[selectRules.parentNotSelf(parent,menu),selectRules.hasChildren(parent,menu)]"
+                      v-bind:items="items" v-model="parent" label="请选择父级" single-line bottom></v-select>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap flex align-center justify-center>
@@ -150,11 +153,28 @@
           sort: 0,
           title: ''
         },
-        parentMenu: null,
+        parent: null,
         requiredRules: [
           (v) => !!v || '此项必须填写',
           (v) => v && v.length <= 30 || '长度不能超过30字符'
-        ]
+        ],
+        selectRules: {
+          parentNotSelf(parent, self) {
+            if (parent && self && parent.id && self.id && parent.id == self.id) {
+              return '不能选择自己为父级';
+            } else {
+              return true;
+            }
+          },
+          hasChildren(parent, menu) {
+            if (menu.children && menu.children.length > 0) {
+              if (parent && parent.id) {
+                return '该菜单包含下级菜单，请勿为其选择父级菜单';
+              }
+            }
+            return true;
+          }
+        }
       }
     },
     methods: {
@@ -167,7 +187,7 @@
       },
       menuClick(obj, parent) {
         this.menu = obj;
-        this.parentMenu = parent;
+        this.parent = parent;
       },
       addMenu() {
         this.menu = {
@@ -185,7 +205,7 @@
       },
       delMenu() {
         if (this.menu != null && this.menu.id != null) {
-          if (this.parentMenu == null) {
+          if (this.parent == null) {
             this.axios.delete('setting/menu/' + this.menu.id).then(response => {
               if (response.status == 200) {
                 this.items = response.data.data;
@@ -197,7 +217,8 @@
               }
             })
           } else {
-            this.axios.delete('setting/menus/' + this.parentMenu.id + '/menus/' + this.menu.id).then(response => {
+            this.items = [];
+            this.axios.delete('setting/menus/' + this.parent.id + '/menus/' + this.menu.id).then(response => {
               if (response.status == 200) {
                 this.items = response.data.data;
                 this.store.commit('showSnackbar', {
@@ -215,7 +236,7 @@
         this.valid = false;
         if (this.$refs.menuForm.validate()) {
           let params = {
-            parentId: this.parentMenu == null ? null : this.parentMenu.id,
+            parentId: this.parent == null ? null : this.parent.id,
             menu: this.menu
           }
           this.axios.post('setting/menus', params).then(response => {

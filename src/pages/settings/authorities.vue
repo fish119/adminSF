@@ -54,14 +54,15 @@
                         父 级：
                       </v-flex>
                       <v-flex xs9>
-                        <v-select clearable item-text="name" v-bind:items="items" v-model="parentAuthority" label="请选择父级" single-line bottom></v-select>
+                        <v-select clearable item-text="name" v-bind:items="items" v-model="parentAuthority" :rules="[selectRules.parentNotSelf(parentAuthority,authority),selectRules.hasChildren(parentAuthority,authority)]"
+                          label="请选择父级" single-line bottom></v-select>
                       </v-flex>
                     </v-layout>
                   </v-flex>
                   <v-flex sm2></v-flex>
                   <v-flex sm5 xs12>
                     <v-layout row wrap flex align-center justify-center>
-                      <v-flex xs3 >
+                      <v-flex xs3>
                         方 法：
                       </v-flex>
                       <v-flex xs9>
@@ -183,7 +184,24 @@
         requiredRules: [
           (v) => !!v || '此项必须填写',
           (v) => v && v.length <= 30 || '长度不能超过30字符'
-        ]
+        ],
+        selectRules: {
+          parentNotSelf(parent, self) {
+            if (parent && self && parent.id && self.id && parent.id == self.id) {
+              return '不能选择自己为父级';
+            } else {
+              return true;
+            }
+          },
+          hasChildren(parent, menu) {
+            if (menu.children && menu.children.length > 0) {
+              if (parent && parent.id) {
+                return '该菜单包含下级菜单，请勿为其选择父级菜单';
+              }
+            }
+            return true;
+          }
+        }
       }
     },
     methods: {

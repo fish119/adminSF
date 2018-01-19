@@ -18,7 +18,7 @@
               <v-list-tile-title>{{ item.title }}</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
-          <v-list-tile v-for="subItem in item.childrenMenu" v-bind:key="subItem.title" :to="subItem.action">
+          <v-list-tile v-for="subItem in item.children" v-bind:key="subItem.title" :to="subItem.action">
             <v-list-tile-action class="list-sub-item-icon">
               <v-icon>{{ subItem.icon }}</v-icon>
             </v-list-tile-action>

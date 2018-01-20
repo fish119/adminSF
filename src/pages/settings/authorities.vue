@@ -1,6 +1,6 @@
 <template>
   <div class="main-container-div">
-    <v-flex hidden-xs-only>
+    <v-flex>
       <v-breadcrumbs class="main-breadcrumbs">
         <v-icon slot="divider">chevron_right</v-icon>
         <v-breadcrumbs-item v-for="item in breadcrumbsItems" :key="item.text" :disabled="item.disabled">
@@ -10,8 +10,8 @@
       <v-divider></v-divider>
     </v-flex>
     <v-container fluid style="padding:10px;">
-      <v-layout row>
-        <v-flex sm3 hidden-xs-only style="padding-right:10px;">
+      <v-layout row wrap>
+        <v-flex sm3 xs12 style="padding-right:10px;padding-bottom:10px;">
           <v-card class="card">
             <v-flex hidden-sm-only>
               <v-card-actions style="padding-bottom:5px;">
@@ -43,7 +43,7 @@
             </v-card-text>
           </v-card>
         </v-flex>
-        <v-flex sm9>
+        <v-flex sm9 xs12>
           <v-card>
             <v-card-text style="padding-bottom:0;">
               <v-form v-model="valid" ref="authorityForm">

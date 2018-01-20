@@ -17,15 +17,17 @@
   export default {
     data() {
       return {
+        dialog: false,
+        valid: true,
         breadcrumbsItems: [{
             text: '人员管理',
             disabled: false
           },
           {
-            text: '用户管理',
+            text: '部门管理',
             disabled: false
           }
-        ],
+        ]
       }
     }
   }

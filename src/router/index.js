@@ -8,6 +8,7 @@ import users from '@/pages/settings/users'
 import menus from '@/pages/settings/menus'
 import authorities from '@/pages/settings/authorities'
 import roles from '@/pages/settings/roles'
+import departments from '@/pages/settings/departments'
 
 
 Vue.use(Router)
@@ -26,7 +27,7 @@ export default new Router({
       path: '/main',
       name: 'main',
       component: main
-    },{
+    }, {
       path: '/404',
       name: '404',
       component: pagenotfound
@@ -46,6 +47,10 @@ export default new Router({
       path: '/settings/roles',
       name: '/settings/roles',
       component: roles
+    }, {
+      path: '/settings/departments',
+      name: '/settings/departments',
+      component: departments
     }]
   }, {
     path: '/*',

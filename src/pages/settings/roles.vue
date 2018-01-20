@@ -1,6 +1,6 @@
 <template>
   <div class="main-container-div">
-    <v-flex hidden-xs-only>
+    <v-flex>
       <v-breadcrumbs class="main-breadcrumbs">
         <v-icon slot="divider">chevron_right</v-icon>
         <v-breadcrumbs-item v-for="item in breadcrumbsItems" :key="item.text" :disabled="item.disabled">
@@ -10,8 +10,8 @@
       <v-divider></v-divider>
     </v-flex>
     <v-container fluid style="padding:10px;">
-      <v-layout row>
-        <v-flex sm3 hidden-xs-only style="padding-right:10px;">
+      <v-layout row wrap>
+        <v-flex sm3 xs12 style="padding-right:10px;padding-bottom:10px;">
           <v-card class="card">
             <v-flex hidden-sm-only>
               <v-card-actions style="padding-bottom:0;">
@@ -32,7 +32,7 @@
             </v-card-text>
           </v-card>
         </v-flex>
-        <v-flex sm9>
+        <v-flex sm9 xs12>
           <v-card>
             <v-card-text style="padding-bottom:0;">
               <v-form v-model="valid" ref="roleForm">
@@ -60,17 +60,22 @@
                   </v-flex>
                 </v-layout>
                 <v-tabs color="cyan" dark fixed-tabs style="background:#fafafa;">
-                  <v-tab key="权限" ripple>
-                    权限
-                    <!-- <v-switch  v-model="hasAllAuth" @click.native="selectAll()"></v-switch> -->
-                  </v-tab>
+                  <v-tab key="权限" ripple>权限</v-tab>
                   <v-tab-item key="权限" style="padding:10px;">
                     <v-expansion-panel style="margin:0 ,10px!important;">
                       <v-expansion-panel-content v-for="aitem in authorities" :key="aitem.id">
-                        <div slot="header">{{aitem.name}}</div>
+                        <div slot="header">
+                          <v-layout row wrap align-center justify-center>
+                            <v-flex xs12 sm6 justify-center>{{aitem.name}}
+                            </v-flex>
+                            <v-flex xs12 sm6 align-center>
+                              <v-btn @click.native.stop="selecteAllAuth(aitem)" :outline="!isSelectedAllAuth(aitem)" small color="accent" round>{{isSelectedAllAuth(aitem)?'清空':'全选'}}</v-btn>
+                            </v-flex>
+                          </v-layout>
+                        </div>
                         <v-card>
                           <v-card-text style="padding-bottom:0!important;margin:0!important;" class="grey lighten-3">
-                            <v-layout row wrap>
+                            <v-layout row wrap class="children">
                               <v-flex xs6 sm4 md3 v-for="child in aitem.children" v-bind:key="child.id" style="padding-top:0;">
                                 <v-switch :label="child.name" v-model="selectedAuths" :value="selectedAuths.find(o => o.id === child.id)?selectedAuths.find(o => o.id === child.id):child"></v-switch>
                               </v-flex>
@@ -80,25 +85,23 @@
                       </v-expansion-panel-content>
                     </v-expansion-panel>
                   </v-tab-item>
-                  <v-tab key="菜单" ripple>
-                    菜单
-                  </v-tab>
+                  <v-tab key="菜单" ripple>菜单</v-tab>
                   <v-tab-item key="菜单" style="padding:10px;">
                     <v-expansion-panel style="margin:0 ,10px!important;">
                       <v-expansion-panel-content v-for="mitem in menus" :key="mitem.id">
                         <div slot="header">
                           <v-layout row wrap align-center justify-center>
-                            <v-flex justify-center>
+                            <v-flex xs12 sm6 justify-center>
                               <v-switch style="width:clear;" @click.native.stop="1==1" :label="mitem.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === mitem.id)?selectedMenus.find(o => o.id === mitem.id):mitem"></v-switch>
                             </v-flex>
-                            <v-flex align-center>
+                            <v-flex xs12 sm6 align-center>
                               <v-btn @click.native.stop="selecteAllMenu(mitem)" :outline="!isSelectedAllMenu(mitem)" small color="accent" round>{{isSelectedAllMenu(mitem)?'清空':'全选'}}</v-btn>
                             </v-flex>
                           </v-layout>
                         </div>
                         <v-card>
                           <v-card-text style="padding-bottom:0!important;margin:0!important;" class="grey lighten-3">
-                            <v-layout row wrap>
+                            <v-layout row wrap class="children">
                               <v-flex xs6 sm4 md3 v-for="child in mitem.children" v-bind:key="child.id" style="padding-top:0;">
                                 <v-switch class="my-switch" @click.native="menuClick(child,mitem)" :label="child.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === child.id)?selectedMenus.find(o => o.id === child.id):child"></v-switch>
                               </v-flex>
@@ -241,14 +244,6 @@
         this.menus = [];
         this.hasAllAuth = false;
       },
-      selectAll() {
-        this.selectedAuths = [];
-        if (this.hasAllAuth) {
-          for (var i = 0; i < this.authorities.length; i++) {
-            this.selectedAuths = this.selectedAuths.concat(this.authorities[i].children)
-          }
-        }
-      },
       roleClick(item) {
         this.role = item;
         this.selectedAuths = this.role.authorities;
@@ -266,6 +261,34 @@
               this.selectedMenus.splice(this.selectedMenus.indexOf(parent), 1)
             }
           }
+        }
+      },
+      isSelectedAllAuth(auth) {
+        return auth.children.every(elem => this.selectedAuths.find(o => o.id === elem.id));
+      },
+      selecteAllAuth(auth) {
+        if (this.isSelectedAllAuth(auth)) {
+          if (this.selectedAuths.find(o => o.id === auth.id)) {
+            this.selectedAuths.splice(this.selectedAuths.indexOf(this.selectedAuths.find(o => o.id === auth.id)), 1);
+          }
+          auth.children.every(elem => {
+            if (this.selectedAuths.find(o => o.id === elem.id)) {
+              this.selectedAuths.splice(this.selectedAuths.indexOf(this.selectedAuths.find(o => o.id === elem.id)),
+                1);
+            }
+            return true;
+          });
+        } else {
+          //应该不需要加入父级权限（父级权限一律无url）
+          // if (!this.selectedAuths.find(o => o.id === auth.id)) {
+          //   this.selectedAuths.push(auth);
+          // }
+          auth.children.every(elem => {
+            if (!this.selectedAuths.find(o => o.id === elem.id)) {
+              this.selectedAuths.push(elem);
+            }
+            return true;
+          });
         }
       },
       isSelectedAllMenu(menu) {
@@ -321,6 +344,9 @@
     display: -webkit-box !important;
     display: -ms-flexbox !important;
     display: -moz-box !important;
+  }
+
+  .children {
     padding-bottom: 10px;
   }
 

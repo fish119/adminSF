@@ -178,6 +178,15 @@
       }
     },
     methods: {
+      onHttpSuccess(response) {
+        this.items = response.data.data;
+        this.$store.commit('setMenus', response.data.userMenus);
+        this.store.commit('showSnackbar', {
+          msg: '操作成功',
+          color: 'success'
+        });
+        this.clear();
+      },
       getMenus() {
         this.axios.get('setting/menus').then(response => {
           if (response.status == 200) {
@@ -208,24 +217,14 @@
           if (this.parent == null) {
             this.axios.delete('setting/menu/' + this.menu.id).then(response => {
               if (response.status == 200) {
-                this.items = response.data.data;
-                this.store.commit('showSnackbar', {
-                  msg: '操作成功',
-                  color: 'success'
-                });
-                this.clear();
+                this.onHttpSuccess(response);
               }
             })
           } else {
             this.items = [];
             this.axios.delete('setting/menus/' + this.parent.id + '/menus/' + this.menu.id).then(response => {
               if (response.status == 200) {
-                this.items = response.data.data;
-                this.store.commit('showSnackbar', {
-                  msg: '操作成功',
-                  color: 'success'
-                });
-                this.clear();
+                this.onHttpSuccess(response);
               }
             })
           }
@@ -241,12 +240,7 @@
           }
           this.axios.post('setting/menus', params).then(response => {
             if (response.status == 200) {
-              this.items = response.data.data;
-              this.store.commit('showSnackbar', {
-                msg: '操作成功',
-                color: 'success'
-              });
-              this.clear();
+              this.onHttpSuccess(response);
             }
           })
         }

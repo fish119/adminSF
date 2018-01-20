@@ -193,6 +193,7 @@
           this.axios.post('setting/roles', params).then(response => {
             if (response.status == 200) {
               this.items = response.data.data;
+              this.$store.commit('setMenus', response.data.userMenus);
               this.store.commit('showSnackbar', {
                 msg: '操作成功',
                 color: 'success'
@@ -206,6 +207,7 @@
           this.axios.delete('setting/role/' + this.role.id).then(response => {
             if (response.status == 200) {
               this.items = response.data.data;
+              this.$store.commit('setMenus', response.data.userMenus);
               this.store.commit('showSnackbar', {
                 msg: '操作成功',
                 color: 'success'

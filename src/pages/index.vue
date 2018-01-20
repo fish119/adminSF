@@ -63,10 +63,17 @@
       username: '',
       avatar: '/static/avatar.png',
       dialog: false,
-      drawer: null,
-      items: []
+      drawer: null
     }),
     computed: {
+      items: {
+        get() {
+          return this.$store.state.menus;
+        },
+        set(value) {
+          this.$store.commit('setMenus', value);
+        }
+      },
       isShowSnackbar: {
         get() {
           return this.$store.state.isShowSnackbar

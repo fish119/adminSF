@@ -87,13 +87,20 @@
                     <v-expansion-panel style="margin:0 ,10px!important;">
                       <v-expansion-panel-content v-for="mitem in menus" :key="mitem.id">
                         <div slot="header">
-                          <v-switch @click.native.stop="1==1" :label="mitem.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === mitem.id)?selectedMenus.find(o => o.id === mitem.id):mitem"></v-switch>
+                          <v-layout row wrap align-center justify-center>
+                            <v-flex justify-center>
+                              <v-switch style="width:clear;" @click.native.stop="1==1" :label="mitem.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === mitem.id)?selectedMenus.find(o => o.id === mitem.id):mitem"></v-switch>
+                            </v-flex>
+                            <v-flex align-center>
+                              <v-btn @click.native.stop="selecteAllMenu(mitem)" :outline="!isSelectedAllMenu(mitem)" small color="accent" round>{{isSelectedAllMenu(mitem)?'清空':'全选'}}</v-btn>
+                            </v-flex>
+                          </v-layout>
                         </div>
                         <v-card>
                           <v-card-text style="padding-bottom:0!important;margin:0!important;" class="grey lighten-3">
                             <v-layout row wrap>
                               <v-flex xs6 sm4 md3 v-for="child in mitem.children" v-bind:key="child.id" style="padding-top:0;">
-                                <v-switch class="my-switch" :label="child.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === child.id)?selectedMenus.find(o => o.id === child.id):child"></v-switch>
+                                <v-switch class="my-switch" @click.native="menuClick(child,mitem)" :label="child.title" v-model="selectedMenus" :value="selectedMenus.find(o => o.id === child.id)?selectedMenus.find(o => o.id === child.id):child"></v-switch>
                               </v-flex>
                             </v-layout>
                           </v-card-text>
@@ -247,6 +254,46 @@
         this.selectedAuths = this.role.authorities;
         this.selectedMenus = this.role.menus;
         this.hasAllAuth = false;
+      },
+      menuClick(menu, parent) {
+        if (this.selectedMenus.find(o => o.id === menu.id)) {
+          if (this.selectedMenus.indexOf(parent) == -1) {
+            this.selectedMenus.push(parent);
+          }
+        } else {
+          if (!this.selectedMenus.some(r => parent.children.indexOf(r) >= 0)) {
+            if (this.selectedMenus.find(o => o.id === parent.id)) {
+              this.selectedMenus.splice(this.selectedMenus.indexOf(parent), 1)
+            }
+          }
+        }
+      },
+      isSelectedAllMenu(menu) {
+        return menu.children.every(elem => this.selectedMenus.find(o => o.id === elem.id));
+      },
+      selecteAllMenu(menu) {
+        if (this.isSelectedAllMenu(menu)) {
+          if (this.selectedMenus.find(o => o.id === menu.id)) {
+            this.selectedMenus.splice(this.selectedMenus.indexOf(this.selectedMenus.find(o => o.id === menu.id)), 1);
+          }
+          menu.children.every(elem => {
+            if (this.selectedMenus.find(o => o.id === elem.id)) {
+              this.selectedMenus.splice(this.selectedMenus.indexOf(this.selectedMenus.find(o => o.id === elem.id)),
+                1);
+            }
+            return true;
+          });
+        } else {
+          if (!this.selectedMenus.find(o => o.id === menu.id)) {
+            this.selectedMenus.push(menu);
+          }
+          menu.children.every(elem => {
+            if (!this.selectedMenus.find(o => o.id === elem.id)) {
+              this.selectedMenus.push(elem);
+            }
+            return true;
+          });
+        }
       }
     },
     mounted() {
@@ -257,7 +304,7 @@
   }
 
 </script>
-<style >
+<style>
   .list__tile--avatar {
     height: 48px;
   }
@@ -265,7 +312,16 @@
   .switch>label {
     font-size: 14px !important;
   }
-.switch>.input-group__details{
-  min-height: 5px !important;
-}
+
+  .switch>.input-group__details {
+    min-height: 5px !important;
+  }
+
+  .input-group.input-group--selection-controls {
+    display: -webkit-box !important;
+    display: -ms-flexbox !important;
+    display: -moz-box !important;
+    padding-bottom: 10px;
+  }
+
 </style>

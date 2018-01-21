@@ -22,7 +22,6 @@ Vue.use(Vuetify, {
     "success": "#4CAF50"
   }
 })
-
 Vue.prototype.axios = axios;
 Vue.prototype.store = store;
 

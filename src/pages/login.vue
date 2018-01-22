@@ -94,7 +94,7 @@
   }
 
 </script>
-<style>
+<style scoped>
   .login-layout {
     background: #00BCD4!important;
     max-width: none;

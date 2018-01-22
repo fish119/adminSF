@@ -8,7 +8,9 @@ const store = new Vuex.Store({
     isShowSnackbar: false,
     snackMsg: '',
     snackbarColor: 'error',
-    menus: []
+    menus: [],
+    selectedMenuObj: null,
+    parentMenuObj: null,
   },
   mutations: {
     showSnackbar(state, option) {
@@ -23,6 +25,12 @@ const store = new Vuex.Store({
     },
     setMenus(state, value) {
       state.menus = value;
+    },
+    setSelectedMenuObj(state, obj) {
+      state.selectedMenuObj = obj;
+    },
+    setParentMenuObj(state, obj) {
+      state.parentMenuObj = obj;
     }
   }
 })

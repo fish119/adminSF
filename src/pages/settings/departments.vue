@@ -23,7 +23,7 @@
               </v-card-actions>
             </v-flex>
             <v-card-text>
-              <treemenu :items="items" v-on:nodeClick="departClick">
+              <treemenu :data="items" :isParent="false">
               </treemenu>
             </v-card-text>
           </v-card>
@@ -37,10 +37,10 @@
                     父 级：
                   </v-flex>
                   <v-flex md11>
-                    <v-menu :full-width=true :close-on-content-click="true" v-model="parentMenu" offset-y nudge-top="25">
-                      <v-text-field :rules="[selectRules.parentNotSelf(parent,depart)]" v-model="parent.name" slot="activator"></v-text-field>
+                    <v-menu :full-width="true" offset-y nudge-top="25">
+                      <v-text-field :rules="[selectRules.parentNotSelf(parentMenuObj,selectedMenuObj)]" v-model="parentMenuObj.name" slot="activator"></v-text-field>
                       <v-card>
-                        <treemenu :items="items" v-on:nodeClick="parentClick">
+                        <treemenu :data="items" :isParent="true">
                         </treemenu>
                       </v-card>
                     </v-menu>
@@ -51,7 +51,7 @@
                     名 称：
                   </v-flex>
                   <v-flex md11>
-                    <v-text-field label="名 称" v-model="depart.name" :rules="requiredRules" required></v-text-field>
+                    <v-text-field label="名 称" v-model="selectedMenuObj.name" :rules="requiredRules" required></v-text-field>
                   </v-flex>
                 </v-layout>
                 <v-layout row wrap flex align-center justify-center>
@@ -61,10 +61,10 @@
                   <v-flex md11>
                     <v-layout row wrap flex align-center justify-center>
                       <v-flex xs1>
-                        {{depart.sort}}
+                        {{selectedMenuObj.sort}}
                       </v-flex>
                       <v-flex xs11>
-                        <v-slider v-model="depart.sort" step="1" max="20" thumb-label></v-slider>
+                        <v-slider v-model="selectedMenuObj.sort" step="1" max="20" thumb-label></v-slider>
                       </v-flex>
                     </v-layout>
                   </v-flex>
@@ -104,20 +104,6 @@
       return {
         dialog: false,
         valid: true,
-        depart: {
-          id: null,
-          name: null,
-          sort: null,
-          children: [],
-          parent: null
-        },
-        parent: {
-          id: null,
-          name: null,
-          sort: null,
-          children: [],
-          parent: null
-        },
         requiredRules: [
           (v) => !!v || '此项必须填写',
           (v) => v && v.length <= 30 || '长度不能超过30字符'
@@ -132,7 +118,6 @@
           }
         ],
         items: [],
-        parentMenu: false,
         selectRules: {
           parentNotSelf(parent, self) {
             if (parent && self && parent.id && self.id && parent.id == self.id) {
@@ -144,34 +129,67 @@
         }
       }
     },
-    methods: {
-      departClick(data) {
-        console.log(data.item.name);
-        this.depart = data.item;
-        // this.parent = data.parent ? data.parent : {
-        //   id: null,
-        //   name: null,
-        //   sort: null,
-        //   children: [],
-        //   parent: null
-        // }
+    computed: {
+      selectedMenuObj: {
+        get() {
+          this.$store.commit('setParentMenuObj', this.getParent());
+          return this.$store.state.selectedMenuObj;
+        },
+        set(value) {
+          this.$store.commit('setSelectedMenuObj', value);
+        }
       },
-      parentClick(data) {
-        this.parent = data.item;
+      parentMenuObj: {
+        get() {
+          return this.$store.state.parentMenuObj;
+        },
+        set(value) {
+          this.$store.commit('setParentMenuObj', value);
+        }
+      }
+    },
+    methods: {
+      getParent() {
+        var tmp = {
+          id: null,
+          name: null,
+          sort: 0,
+          children: [],
+          parent: null
+        }
+        if (this.$store.state.selectedMenuObj.parent) {
+          var parentid = this.$store.state.selectedMenuObj.parent;
+          tmp = this.items.find(o => o.id === this.$store.state.selectedMenuObj.parent);
+          if (!tmp) {
+            this.items.forEach(function (item) {
+              item.children.forEach(function (child) {
+                if (child.id == parentid) {
+                  tmp = child;
+                  return;
+                }
+              });
+            });
+          }
+        }
+        return tmp;
       },
       getAllDeparts() {
         this.axios.get('setting/departments').then(response => {
           if (response.status == 200) {
             this.items = response.data.data;
+            this.parents = response.data.data;
           }
         })
       },
       saveDpart() {
         this.valid = false;
         if (this.$refs.departForm.validate()) {
+          var tmp = this.selectedMenuObj;
+          tmp.parent = null;
+          tmp.children = null;
           let params = {
-            parentId: this.parent == null ? null : this.parent.id,
-            department: this.depart
+            parentId: this.parentMenuObj == null ? null : this.parentMenuObj.id,
+            department: tmp
           }
           this.axios.post('setting/departments', params).then(response => {
             if (response.status == 200) {
@@ -181,7 +199,7 @@
         }
       },
       delDepart() {
-        this.axios.delete('setting/department/' + this.depart.id).then(response => {
+        this.axios.delete('setting/department/' + this.selectedMenuObj.id).then(response => {
           if (response.status == 200) {
             this.onHttpSuccess(response);
             this.dialog = false;
@@ -189,18 +207,18 @@
         })
       },
       openDel() {
-        if (this.depart != null && this.depart.id != null) {
+        if (this.selectedMenuObj != null && this.selectedMenuObj.id != null) {
           this.dialog = true;
         }
       },
       addDepart() {
-        this.depart = {
+        this.$store.commit('setSelectedMenuObj', {
           id: null,
           name: null,
-          sort: null,
+          sort: 0,
           children: [],
           parent: null
-        }
+        });
       },
       onHttpSuccess(response) {
         this.items = response.data.data;
@@ -212,6 +230,22 @@
     },
     mounted() {
       this.getAllDeparts();
+    },
+    created() {
+      this.$store.commit('setSelectedMenuObj', {
+        id: null,
+        name: null,
+        sort: 0,
+        children: [],
+        parent: null
+      });
+      this.$store.commit('setParentMenuObj', {
+        id: null,
+        name: null,
+        sort: 0,
+        children: [],
+        parent: null
+      });
     }
   }
 

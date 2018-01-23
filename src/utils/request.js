@@ -30,7 +30,7 @@ axios.interceptors.request.use(
   err => {
     NProgress.done();
     store.commit('showSnackbar', {
-      msg: '网络异常，请稍后重试'
+      msg: '网络异常或用户取消操作'
     })
     return Promise.reject(err);
   });
@@ -90,7 +90,7 @@ axios.interceptors.response.use(data => {
     return Promise.resolve(error.response);
   } else {
     store.commit('showSnackbar', {
-      msg: '网络异常，请稍后重试'
+      // msg: '网络异常，请稍后重试'
     });
     return Promise.resolve(error);
   }

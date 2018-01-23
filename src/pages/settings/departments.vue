@@ -110,13 +110,6 @@
         items: [],
         depart: {},
         parent: {},
-        defaultDepart: {
-          id: null,
-          name: null,
-          sort: 0,
-          children: [],
-          parent: null
-        },
         requiredRules: [
           (v) => !!v || '此项必须填写',
           (v) => v && v.length <= 30 || '长度不能超过30字符'
@@ -152,6 +145,9 @@
       },
       getParent(arr, parentid) {
         if (parentid) {
+          if (!Number.isInteger(parentid)) {
+            parentid = parentid.id;
+          }
           if (arr && arr.length > 0) {
             for (var i = 0; i < arr.length; i++) {
               if (arr[i].id === parentid) {
@@ -162,7 +158,7 @@
             }
           }
         } else {
-          this.parent = this.defaultDepart;
+          this.clearDepartObj(this.parent)
         }
       },
       getAllDeparts() {
@@ -195,8 +191,8 @@
           if (response.status == 200) {
             this.onHttpSuccess(response);
             this.dialog = false;
-            this.depart = this.defaultDepart;
-            this.parent = this.defaultDepart;
+            this.depart = this.clearDepartObj();
+            this.parent = this.clearDepartObj();
           }
         })
       },
@@ -206,8 +202,8 @@
         }
       },
       addDepart() {
-        this.depart = this.defaultDepart;
-        this.parent = this.defaultDepart;
+        this.depart = this.clearDepartObj();
+        this.parent = this.clearDepartObj();
       },
       parentSelected(item) {
         this.parent = item;
@@ -219,11 +215,20 @@
           msg: '操作成功',
           color: 'success'
         });
+      },
+      clearDepartObj() {
+        return {
+          id: null,
+          name: null,
+          sort: 0,
+          children: [],
+          parent: null
+        }
       }
     },
     mounted() {
       this.getAllDeparts();
-      this.depart = this.defaultDepart;
+      this.parent = this.clearDepartObj();
     }
   }
 

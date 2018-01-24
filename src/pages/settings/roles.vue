@@ -59,7 +59,7 @@
                     </v-layout>
                   </v-flex>
                 </v-layout>
-                <v-tabs color="cyan" dark fixed-tabs style="background:#fafafa;">
+                <v-tabs color="primary" dark fixed-tabs style="background:#fafafa;">
                   <v-tab key="权限" ripple>权限</v-tab>
                   <v-tab-item key="权限" style="padding:10px;">
                     <v-expansion-panel style="margin:0 ,10px!important;">

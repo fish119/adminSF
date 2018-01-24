@@ -89,9 +89,13 @@ axios.interceptors.response.use(data => {
     }
     return Promise.resolve(error.response);
   } else {
-    store.commit('showSnackbar', {
-      // msg: '网络异常，请稍后重试'
-    });
+    if (error instanceof axios.Cancel) {
+
+    } else {
+      store.commit('showSnackbar', {
+        msg: '网络异常，请稍后重试'
+      });
+    }
     return Promise.resolve(error);
   }
   // return Promise.resolve(error);

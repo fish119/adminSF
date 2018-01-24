@@ -38,7 +38,18 @@
         <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon large @click="logout" style="right:20px;">
+      <v-menu offset-y>
+        <v-btn flat large icon slot="activator">
+          <v-icon medium>color_lens</v-icon>
+        </v-btn>
+        <v-list>
+          <v-list-tile v-for="item in themes" :key="item.title" @click="changeTheme(item)">
+            <v-list-tile-title>{{ item }}</v-list-tile-title>
+          </v-list-tile>
+        </v-list>
+      </v-menu>
+
+      <v-btn flat icon large @click="logout" style="right:10px;">
         <v-icon medium>exit_to_app</v-icon>
       </v-btn>
     </v-toolbar>
@@ -63,7 +74,8 @@
       username: '',
       avatar: '/static/avatar.png',
       dialog: false,
-      drawer: null
+      drawer: null,
+      themes:['default','red','teal','dark']
     }),
     computed: {
       items: {
@@ -110,6 +122,7 @@
       }
     },
     mounted() {
+      console.log(this.$vuetify.theme);
       this.getIndexData()
     }
   }

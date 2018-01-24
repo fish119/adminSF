@@ -66,38 +66,38 @@
         <v-icon>add</v-icon>
       </v-btn>
     </v-container>
-    <v-dialog v-model="editDialog"  max-width="500px">
+    <v-dialog v-model="editDialog" max-width="500px">
       <v-card>
         <v-card-title style="padding-bottom:15px;">
           <span class="headline" style="padding-top:0;">{{ formTitle }}</span>
         </v-card-title>
         <v-card-text style="padding-top:0;padding-bottom:0;">
           <v-form v-model="valid" ref="userForm">
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12 sm6 md4>
-                <v-text-field label="用户名" v-model="user.username"></v-text-field>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <v-text-field label="昵称/姓名" v-model="user.nickname"></v-text-field>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <v-text-field label="电话号码" v-model="user.phone"></v-text-field>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <v-text-field label="email" v-model="user.email"></v-text-field>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <v-text-field label="部门" v-model="user.department.name"></v-text-field>
-              </v-flex>
-              <v-flex xs12 sm6 md4>
-                <v-text-field label="上次修改密码时间" readonly v-model="user.lastPasswordResetDate"></v-text-field>
-              </v-flex>
-              <v-flex xs12>
-                <v-text-field label="角色" v-model="user.roles"></v-text-field>
-              </v-flex>
-            </v-layout>
-          </v-container>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field label="用户名" v-model="user.username"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field label="昵称/姓名" v-model="user.nickname"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field label="电话号码" v-model="user.phone"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field label="email" v-model="user.email"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field label="部门" v-model="user.department.name"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md4>
+                  <v-text-field label="上次修改密码时间" readonly v-model="user.lastPasswordResetDate"></v-text-field>
+                </v-flex>
+                <v-flex xs12>
+                  <v-text-field label="角色" v-model="user.roles"></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
           </v-form>
         </v-card-text>
         <v-card-actions style="padding-top:0;">
@@ -113,7 +113,7 @@
 <script>
   export default {
     data: () => ({
-      valid:false,
+      valid: false,
       user: {
         department: {}
       },
@@ -233,10 +233,13 @@
   .searchbar>label {
     top: 0!important;
   }
-.input-group{
-  padding-top:0;
-}
-.input-group--text-field label{
-  top:0;
-}
+
+  .input-group {
+    padding-top: 0;
+  }
+
+  .input-group--text-field label {
+    top: 0;
+  }
+
 </style>

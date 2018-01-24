@@ -31,7 +31,7 @@
           <tr :active="props.selected" @click="props.selected = !props.selected">
             <td class="text-xs-center">
               <v-avatar size="30">
-                <img :src="props.item.avatar" />
+                <img :src="props.item.avatar?props.item.avatar:'./static/avatar.png'" />
               </v-avatar>
             </td>
             <td class="text-xs-center">{{ props.item.username }}</td>
@@ -47,7 +47,7 @@
                 <span>编辑</span>
               </v-tooltip>
               <v-tooltip top>
-                <v-btn icon class="mx-0" slot="activator">
+                <v-btn icon class="mx-0" @click="user=props.item;delDialog=true;" slot="activator">
                   <v-icon color="accent">delete</v-icon>
                 </v-btn>
                 <span>删除</span>
@@ -72,29 +72,41 @@
           <span class="headline" style="padding-top:0;">{{ formTitle }}</span>
         </v-card-title>
         <v-card-text style="padding-top:0;padding-bottom:0;">
-          <v-form v-model="valid" ref="userForm">
+          <v-form v-model="valid" ref="userForm" lazy-validation>
             <v-container grid-list-md>
               <v-layout wrap>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="用户名" v-model="user.username"></v-text-field>
+                  <v-text-field label="用户名" v-model="user.username" :rules="requiredRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="昵称/姓名" v-model="user.nickname"></v-text-field>
+                  <v-text-field label="昵称/姓名" v-model="user.nickname" :rules="requiredRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="电话号码" v-model="user.phone"></v-text-field>
+                  <v-text-field label="电话号码" :loading="phoneLoading" maxlength="11" :error-messages="phoneErrMsg" v-model="user.phone" :rules="phoneRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="email" v-model="user.email"></v-text-field>
+                  <v-text-field label="email" v-model="user.email" :rules="emailRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="部门" v-model="user.department.name"></v-text-field>
+                  <!-- <v-text-field label="部门" v-model="user.department.name"></v-text-field> -->
+                  <v-menu :full-width="true" v-model="departSelectOpen" :close-on-content-click="false" offset-y nudge-top="25">
+                    <v-text-field label="部门" readonly v-model="user.department.name" slot="activator"></v-text-field>
+                    <v-card>
+                      <treemenu :data="departments" :isParent="false" @handle="departmentClick" style="padding-bottom:20px !important;"></treemenu>
+                    </v-card>
+                  </v-menu>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
                   <v-text-field label="上次修改密码时间" readonly v-model="user.lastPasswordResetDate"></v-text-field>
                 </v-flex>
                 <v-flex xs12>
-                  <v-text-field label="角色" v-model="user.roles"></v-text-field>
+                  <v-select item-text="name" item-value="id" return-object label="角色" :items="roles" v-model="user.roles" multiple chips>
+                    <template slot="selection" slot-scope="data">
+                      <v-chip class="chip--select-multi" :key="data.item.id">
+                        {{ data.item.name}}
+                      </v-chip>
+                    </template>
+                  </v-select>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -102,73 +114,124 @@
         </v-card-text>
         <v-card-actions style="padding-top:0;">
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="editDialog=false;">取 消</v-btn>
-          <v-btn color="info">重置密码</v-btn>
+          <v-btn color="primary" @click="closeEditDialog">取 消</v-btn>
+          <v-btn color="info" @click="setDefaultPassword(user.id)">重置密码</v-btn>
           <v-btn color="accent" @click="save">保 存</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="delDialog" persistent max-width="600">
+      <v-card>
+        <v-card-title class="headline">确定要删除这条记录吗？删除后不可恢复。</v-card-title>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click.native="delDialog = false">取 消</v-btn>
+          <v-btn color="accent" @click.native="deleteUser(user.id)">确 定</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
 </template>
 <script>
+  import treemenu from '../../components/treemenu'
   export default {
-    data: () => ({
-      valid: false,
-      user: {
-        department: {}
-      },
-      editDialog: false,
-      formTitle: '新增',
-      search: '',
-      loading: false,
-      totalItems: 10,
-      breadcrumbsItems: [{
-        text: '人员管理',
-        disabled: false
-      }, {
-        text: '用户管理',
-        disabled: false
-      }],
-      pagination: {
-        descending: false,
-        page: 1,
-        rowsPerPage: 10,
-        sortBy: "username"
-      },
-      rows_per_page_items: [5, 10, 25, 50, 100],
-      rows_per_page_text: "每页行数",
-      selected: [],
-      headers: [{
-          text: '头像',
-          align: 'center',
-          value: 'avatar'
+    components: {
+      treemenu
+    },
+    data: function () {
+      var self = this;
+      return {
+        departments: [],
+        parentDeparts: [],
+        departSelectOpen: false,
+        valid: false,
+        user: {
+          department: {}
         },
-        {
-          text: '用户名',
-          align: 'center',
-          value: 'username'
+        editDialog: false,
+        delDialog: false,
+        formTitle: '新增',
+        search: '',
+        loading: false,
+        totalItems: 10,
+        breadcrumbsItems: [{
+          text: '人员管理',
+          disabled: false
         }, {
-          text: '昵称/姓名',
-          align: 'center',
-          value: 'nickname'
-        }, {
-          text: '电话号码',
-          align: 'center',
-          value: 'phone'
-        }, {
-          text: 'email',
-          align: 'center',
-          value: 'email'
+          text: '用户管理',
+          disabled: false
+        }],
+        pagination: {
+          descending: false,
+          page: 1,
+          rowsPerPage: 10,
+          sortBy: "username"
         },
-        {
-          text: '部门',
-          align: 'center',
-          value: 'department.name'
-        }
-      ],
-      items: []
-    }),
+        rows_per_page_items: [5, 10, 25, 50, 100],
+        rows_per_page_text: "每页行数",
+        selected: [],
+        headers: [{
+            text: '头像',
+            align: 'center',
+            value: 'avatar'
+          },
+          {
+            text: '用户名',
+            align: 'center',
+            value: 'username'
+          }, {
+            text: '昵称/姓名',
+            align: 'center',
+            value: 'nickname'
+          }, {
+            text: '电话号码',
+            align: 'center',
+            value: 'phone'
+          }, {
+            text: 'email',
+            align: 'center',
+            value: 'email'
+          },
+          {
+            text: '部门',
+            align: 'center',
+            value: 'department.name'
+          }
+        ],
+        items: [],
+        roles: [],
+        phoneLoading: false,
+        phoneErrMsg: [],
+        requiredRules: [
+          (v) => !!v || '此项必须填写',
+          (v) => v && v.length >= 6 || '长度不能小于6字符',
+          (v) => v && v.length <= 30 || '长度不能超过30字符'
+        ],
+        emailRules: [
+          (v) => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || '邮件地址不正确'
+        ],
+        phoneRules: [
+          (v) => !!v || '此项必须填写',
+          (v) => /^1[0-9]{10}$/.test(v) || '手机号码不正确', (v) => self.testPhone()
+        ]
+      }
+    },
     methods: {
+      testPhone() {
+        if (!this.user || !this.user.id) {
+          this.user.id = 0;
+        }
+        if (this.user.phone && this.user.phone.length == 11) {
+          this.phoneLoading = 'accent';
+          this.axios.get('setting/user/' + this.user.id + '/phone/' + this.user.phone).then(response => {
+            if (response.status == 200) {
+              this.phoneErrMsg = response.data.data ? [] : ['手机号码已存在'];
+              this.phoneLoading = false;
+            }
+          })
+        }
+        return true;
+      },
       getUsers() {
         let params = {
           searchStr: this.search,
@@ -186,9 +249,73 @@
           }
         })
       },
+      getAllDeparts() {
+        this.axios.get('setting/departments').then(response => {
+          if (response.status == 200) {
+            this.departments = response.data.data;
+            this.parentDeparts = response.data.data;
+          }
+        })
+      },
+      getRoles() {
+        this.axios.get('setting/roles').then(response => {
+          if (response.status == 200) {
+            this.roles = response.data.data;
+          }
+        })
+      },
       save() {
-        //TODO;
-        this.loading = false;
+        this.valid = false;
+        if (this.$refs.userForm.validate()) {
+          if (this.user.department.children) {
+            this.user.department.children = null;
+          }
+          if (this.user.department.parent) {
+            this.user.department.parent = null;
+          }
+          let params = {
+            user: this.user
+          }
+          this.axios.post('setting/users', params).then(response => {
+            if (response.status == 200) {
+              if (!this.user.id) {
+                this.getUsers();
+              }
+              this.closeEditDialog();
+              this.loading = false;
+              this.store.commit('showSnackbar', {
+                msg: '操作成功',
+                color: 'success'
+              });
+            }
+          })
+        }
+      },
+      setDefaultPassword(id) {
+        this.axios.post('setting/users/setDefaultPassword', {
+          id: this.user.id
+        }).then(response => {
+          if (response.status == 200) {
+            this.loading = false;
+            this.store.commit('showSnackbar', {
+              msg: '操作成功',
+              color: 'success'
+            });
+          }
+        })
+      },
+      deleteUser() {
+        this.axios.delete('setting/users/' + this.user.id).then(response => {
+          if (response.status == 200) {
+            this.loading = false;
+            this.getUsers();
+            this.store.commit('showSnackbar', {
+              msg: '操作成功',
+              color: 'success'
+            });
+            this.delDialog = false;
+          }
+        })
       },
       changeSort(column) {
         if (this.pagination.sortBy === column) {
@@ -200,10 +327,20 @@
       },
       openEditDialog(item) {
         this.user = item ? item : {
-          department: {}
+          department: {},
+          roles: []
         };
         this.formTitle = item ? '编辑' : '新增';
         this.editDialog = true;
+      },
+      departmentClick(value) {
+        this.user.department = value;
+        this.departSelectOpen = false;
+      },
+      closeEditDialog(){
+        this.editDialog = false;
+        this.phoneLoading = false;
+        this.phoneErrMsg = [];
       }
     },
     watch: {
@@ -218,6 +355,10 @@
           this.getUsers();
         },
       }
+    },
+    mounted() {
+      this.getRoles();
+      this.getAllDeparts();
     }
   }
 

@@ -39,19 +39,24 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-menu offset-y>
-        <v-btn flat large icon slot="activator">
-          <v-icon medium>color_lens</v-icon>
-        </v-btn>
+        <v-tooltip bottom slot="activator">
+          <v-btn flat large icon slot="activator">
+            <v-icon medium>color_lens</v-icon>
+          </v-btn>
+          <span>主题</span>
+        </v-tooltip>
         <v-list>
           <v-list-tile v-for="item in themes" :key="item.title" @click="changeTheme(item)">
             <v-list-tile-title>{{ item }}</v-list-tile-title>
           </v-list-tile>
         </v-list>
       </v-menu>
-
-      <v-btn flat icon large @click="logout" style="right:10px;">
-        <v-icon medium>exit_to_app</v-icon>
-      </v-btn>
+      <v-tooltip bottom>
+        <v-btn flat icon large @click="logout" style="right:10px;" slot="activator">
+          <v-icon medium>exit_to_app</v-icon>
+        </v-btn>
+        <span>注销</span>
+      </v-tooltip>
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height>
@@ -75,7 +80,7 @@
       avatar: '/static/avatar.png',
       dialog: false,
       drawer: null,
-      themes:['default','red','teal','dark']
+      themes: ['default', 'red', 'teal', 'dark']
     }),
     computed: {
       items: {
@@ -122,7 +127,6 @@
       }
     },
     mounted() {
-      console.log(this.$vuetify.theme);
       this.getIndexData()
     }
   }

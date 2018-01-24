@@ -108,7 +108,9 @@
         valid: true,
         selectOpen: false,
         items: [],
-        depart: {},
+        depart: {
+          sort: 0
+        },
         parent: {},
         requiredRules: [
           (v) => !!v || '此项必须填写',

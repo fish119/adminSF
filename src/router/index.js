@@ -9,6 +9,7 @@ import menus from '@/pages/settings/menus'
 import authorities from '@/pages/settings/authorities'
 import roles from '@/pages/settings/roles'
 import departments from '@/pages/settings/departments'
+import profile from '@/pages/profile/profile'
 
 
 Vue.use(Router)
@@ -51,6 +52,10 @@ export default new Router({
       path: '/settings/departments',
       name: '/settings/departments',
       component: departments
+    }, {
+      path: '/profile/profile',
+      name: '/profile/profile',
+      component: profile
     }]
   }, {
     path: '/*',

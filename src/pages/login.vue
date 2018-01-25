@@ -48,7 +48,7 @@
           (v) => v && v.length >= 6 || 'Username must be more than 6 characters',
           (v) => v && v.length <= 20 || 'Username must be less than 20 characters'
         ],
-        password: 'string',
+        password: 'password',
         passwordRules: [
           (v) => !!v || 'Password is required',
           // (v) => /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'

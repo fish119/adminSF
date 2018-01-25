@@ -104,7 +104,7 @@
                 <v-flex xs12>
                   <v-select item-text="name" item-value="id" return-object label="角色" :items="roles" v-model="user.roles" multiple chips>
                     <template slot="selection" slot-scope="data">
-                      <v-chip class="chip--select-multi" :key="data.item.id">
+                      <v-chip color="primary" class="chip--select-multi white--text" :key="data.item.id">
                         {{ data.item.name}}
                       </v-chip>
                     </template>
@@ -262,7 +262,7 @@
           this.userLoading = 'accent';
           this.axios.get('setting/user/' + this.user.id + '/nickname/' + this.user.nickname).then(response => {
             if (response.status == 200) {
-              this.nicknameErrMsg = response.data.data ? [] : ['用户名已存在'];
+              this.nicknameErrMsg = response.data.data ? [] : ['昵称已存在'];
               this.nicknameLoading = false;
             }
           })

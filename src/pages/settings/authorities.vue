@@ -114,7 +114,7 @@
             </v-card-text>
             <v-card-actions style="padding-top:0;">
               <v-spacer></v-spacer>
-              <v-btn color="primary" @click="saveAuthority">保 存</v-btn>
+              <v-btn color="primary" @click="saveAuthority()">保 存</v-btn>
               <v-spacer></v-spacer>
               <v-btn color="error" @click="openDel">删 除</v-btn>
               <v-spacer></v-spacer>
@@ -266,10 +266,11 @@
           if (!this.authority.url) {
             this.authority.url = "/"
           }
+          this.authority.permissionUrl = this.authority.url;
           let params = {
             parentId: this.parentAuthority == null ? null : this.parentAuthority.id,
             authority: this.authority
-          }
+          };
           this.axios.post('setting/authorities', params).then(response => {
             if (response.status == 200) {
               this.items = response.data.data;
@@ -277,7 +278,6 @@
                 msg: '操作成功',
                 color: 'success'
               });
-              this.clear();
             }
           })
         }

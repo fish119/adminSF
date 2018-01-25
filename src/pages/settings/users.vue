@@ -76,16 +76,18 @@
             <v-container grid-list-md>
               <v-layout wrap>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="用户名" v-model="user.username" :rules="requiredRules"></v-text-field>
+                  <v-text-field label="用户名" :loading="usernameLoading" maxlength="30" :error-messages="usernameErrMsg" v-model="user.username"
+                    :rules="usernameRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="昵称/姓名" v-model="user.nickname" :rules="requiredRules"></v-text-field>
+                  <v-text-field label="昵称/姓名" :loading="nicknameLoading" maxlength="30" :error-messages="nicknameErrMsg" v-model="user.nickname"
+                    :rules="nicknameRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
                   <v-text-field label="电话号码" :loading="phoneLoading" maxlength="11" :error-messages="phoneErrMsg" v-model="user.phone" :rules="phoneRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
-                  <v-text-field label="email" v-model="user.email" :rules="emailRules"></v-text-field>
+                  <v-text-field label="email" :loading="emailLoading" maxlength="30" :error-messages="emailErrMsg" v-model="user.email" :rules="emailRules"></v-text-field>
                 </v-flex>
                 <v-flex xs12 sm6 md4>
                   <!-- <v-text-field label="部门" v-model="user.department.name"></v-text-field> -->
@@ -202,21 +204,74 @@
         roles: [],
         phoneLoading: false,
         phoneErrMsg: [],
-        requiredRules: [
+        usernameLoading: false,
+        usernameErrMsg: [],
+        nicknameLoading: false,
+        nicknameErrMsg: [],
+        emailLoading: false,
+        emailErrMsg: [],
+        usernameRules: [
           (v) => !!v || '此项必须填写',
           (v) => v && v.length >= 6 || '长度不能小于6字符',
-          (v) => v && v.length <= 30 || '长度不能超过30字符'
+          (v) => v && v.length <= 30 || '长度不能超过30字符',
+          (v) => self.testUsername()
+        ],
+        nicknameRules: [
+          (v) => !!v || '此项必须填写',
+          (v) => v && v.length >= 6 || '长度不能小于6字符',
+          (v) => v && v.length <= 30 || '长度不能超过30字符',
+          (v) => self.testNickname()
         ],
         emailRules: [
-          (v) => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || '邮件地址不正确'
+          (v) => !v || v.length >= 6 || '长度不能小于6字符',
+          (v) => !v || v.length <= 30 || '长度不能超过30字符',
+          (v) => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || '邮件地址不正确',
+          (v) => self.testEmail()
         ],
         phoneRules: [
           (v) => !!v || '此项必须填写',
-          (v) => /^1[0-9]{10}$/.test(v) || '手机号码不正确', (v) => self.testPhone()
+          (v) => /^1[0-9]{10}$/.test(v) || '手机号码不正确',
+          (v) => self.testPhone()
         ]
       }
     },
     methods: {
+      testUsername() {
+        if (!this.user || !this.user.id) {
+          this.user.id = 0;
+        }
+        if (this.user.username && this.user.username.length >= 6) {
+          this.userLoading = 'accent';
+          this.axios.get('setting/user/' + this.user.id + '/username/' + this.user.username).then(response => {
+            if (response.status == 200) {
+              this.usernameErrMsg = response.data.data ? [] : ['用户名已存在'];
+              this.usernameLoading = false;
+            }
+          })
+        } else {
+          this.usernameErrMsg = [];
+          this.usernameLoading = false;
+        }
+        return true;
+      },
+      testNickname() {
+        if (!this.user || !this.user.id) {
+          this.user.id = 0;
+        }
+        if (this.user.nickname && this.user.nickname.length >= 6) {
+          this.userLoading = 'accent';
+          this.axios.get('setting/user/' + this.user.id + '/nickname/' + this.user.nickname).then(response => {
+            if (response.status == 200) {
+              this.nicknameErrMsg = response.data.data ? [] : ['用户名已存在'];
+              this.nicknameLoading = false;
+            }
+          })
+        } else {
+          this.nicknameErrMsg = [];
+          this.nicknameLoading = false;
+        }
+        return true;
+      },
       testPhone() {
         if (!this.user || !this.user.id) {
           this.user.id = 0;
@@ -229,6 +284,28 @@
               this.phoneLoading = false;
             }
           })
+        } else {
+          this.phoneErrMsg = [];
+          this.phoneLoading = false;
+        }
+        return true;
+      },
+      testEmail() {
+        if (!this.user || !this.user.id) {
+          this.user.id = 0;
+        }
+        if (this.user.email && this.user.email.length > 6) {
+          this.emailLoading = 'accent';
+          var url = encodeURI('setting/user/' + this.user.id + '/email?email=' + this.user.email);
+          this.axios.get(url).then(response => {
+            if (response.status == 200) {
+              this.emailErrMsg = response.data.data ? [] : ['Email已存在'];
+              this.emailLoading = false;
+            }
+          })
+        } else {
+          this.emailErrMsg = [];
+          this.emailLoading = false;
         }
         return true;
       },
@@ -337,7 +414,7 @@
         this.user.department = value;
         this.departSelectOpen = false;
       },
-      closeEditDialog(){
+      closeEditDialog() {
         this.editDialog = false;
         this.phoneLoading = false;
         this.phoneErrMsg = [];

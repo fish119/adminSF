@@ -3,12 +3,12 @@
     <v-navigation-drawer width="240" class="nav-drawer" fixed :clipped="$vuetify.breakpoint.mdAndUp" app v-model="drawer">
       <v-layout row class="user-details" align-center="true" justify-center>
         <v-layout justify-center style="margin-left:20px;">
-          <v-avatar size="48">
-            <img width="48px;" :src="avatar" alt="user">
+          <v-avatar size="64">
+            <img width="64px;" :src="userAvatar"/>
           </v-avatar>
         </v-layout>
         <v-layout style="margin-left:-10px;">
-          <p class="username">{{username}}</p>
+          <p class="username headline">{{username}}</p>
         </v-layout>
       </v-layout>
       <v-list>
@@ -60,9 +60,7 @@
     </v-toolbar>
     <v-content>
       <v-container fluid fill-height>
-        <!-- <v-layout justify-center align-center> -->
         <router-view></router-view>
-        <!-- </v-layout> -->
       </v-container>
       <v-snackbar :color="snackbarColor" :timeout="2000" :top="true" v-model="isShowSnackbar">
         {{this.$store.state.snackMsg}}
@@ -72,12 +70,10 @@
     <!-- <v-btn fab bottom right color="pink" dark fixed > -->
   </div>
 </template>
-<style src="../assets/main.css" />
 <script>
   export default {
     data: () => ({
       username: '',
-      avatar: '/static/avatar.png',
       dialog: false,
       drawer: null,
       themes: ['default', 'red', 'teal', 'dark']
@@ -90,6 +86,9 @@
         set(value) {
           this.$store.commit('setMenus', value);
         }
+      },
+      userAvatar(){
+        return this.$store.state.avatar;
       },
       isShowSnackbar: {
         get() {
@@ -113,7 +112,9 @@
         this.axios.post('index').then(response => {
           if (response.data.user) {
             this.username = response.data.user.username;
-            this.avatar = this.axios.baseURL+'avatar/'+response.data.user.avatar;
+            if(response.data.user.avatar){
+            this.$store.commit('setAvatar', this.axios.baseURL + 'avatar/'+response.data.user.avatar);
+            }
             this.items = response.data.menus;
           }
         })
@@ -132,3 +133,4 @@
   }
 
 </script>
+<style src="../assets/main.css" />

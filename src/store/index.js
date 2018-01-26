@@ -8,7 +8,8 @@ const store = new Vuex.Store({
     isShowSnackbar: false,
     snackMsg: '',
     snackbarColor: 'error',
-    menus: []
+    menus: [],
+    avatar: 'static/logo.png'
   },
   mutations: {
     showSnackbar(state, option) {
@@ -23,6 +24,9 @@ const store = new Vuex.Store({
     },
     setMenus(state, value) {
       state.menus = value;
+    },
+    setAvatar(state, url) {
+      state.avatar = url;
     }
   }
 })

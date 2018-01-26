@@ -31,7 +31,7 @@
           <tr :active="props.selected" @click="props.selected = !props.selected">
             <td class="text-xs-center">
               <v-avatar size="30">
-                <img :src="props.item.avatar?props.item.avatar:'./static/avatar.png'" />
+                <img :src="props.item.avatar?baseUrl+'avatar/'+props.item.avatar:'/static/avatar.png'" />
               </v-avatar>
             </td>
             <td class="text-xs-center">{{ props.item.username }}</td>
@@ -233,6 +233,11 @@
           (v) => /^1[0-9]{10}$/.test(v) || '手机号码不正确',
           (v) => self.testPhone()
         ]
+      }
+    },
+     computed: {
+      baseUrl() {
+        return this.axios.baseURL
       }
     },
     methods: {

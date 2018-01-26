@@ -13,8 +13,7 @@
       <v-layout row wrap>
         <v-flex offset-md1 md2 sm3 xs12 style="padding-top:30px;" justify-center align-center class="text-xs-center">
           <imgUpload :maxSize="1024" :headers="headers" field="avatar" :withCredentials="true" :noRotate="false" @crop-upload-success="cropUploadSuccess"
-            :width="300" :height="300" url="http://localhost:9999/setting/profile/setAvatar" :value="uploadShow" v-model="uploadShow"
-            img-format="png"></imgUpload>
+            ki="255" url="http://localhost:9999/setting/profile/setAvatar" :value="uploadShow" v-model="uploadShow" img-format="png"></imgUpload>
           <v-avatar :size="100" style="cursor: pointer;" @click="toggleUpload">
             <img :src="user.avatar?baseUrl+'avatar/'+user.avatar:'/static/avatar.png'" alt="avatar">
           </v-avatar>
@@ -39,7 +38,7 @@
                   <v-layout wrap>
                     <v-flex xs12 sm6 md4>
                       <v-text-field label="用户名" :loading="usernameLoading" maxlength="30" :error-messages="usernameErrMsg" v-model="user.username"
-                        :rules="usernameRules"></v-text-field>
+                        readonly></v-text-field>
                     </v-flex>
                     <v-flex xs12 sm6 md4>
                       <v-text-field label="昵称/姓名" :loading="nicknameLoading" maxlength="30" :error-messages="nicknameErrMsg" v-model="user.nickname"
@@ -52,7 +51,6 @@
                       <v-text-field label="email" :loading="emailLoading" maxlength="30" :error-messages="emailErrMsg" v-model="user.email" :rules="emailRules"></v-text-field>
                     </v-flex>
                     <v-flex xs12 sm6 md4>
-                      <!-- <v-text-field label="部门" v-model="user.department.name"></v-text-field> -->
                       <v-menu :full-width="true" v-model="departSelectOpen" :close-on-content-click="false" offset-y nudge-top="25">
                         <v-text-field label="部门" readonly v-model="user.department.name" slot="activator"></v-text-field>
                         <v-card>
@@ -89,7 +87,7 @@
 </template>
 <script>
   import treemenu from '../../components/treemenu'
-  import myUpload from 'vue-image-crop-upload/upload-2.vue';
+  import myUpload from '../../components/imgUpload/upload.vue';
   export default {
     components: {
       treemenu,
@@ -118,12 +116,6 @@
         nicknameErrMsg: [],
         emailLoading: false,
         emailErrMsg: [],
-        usernameRules: [
-          (v) => !!v || '此项必须填写',
-          (v) => v && v.length >= 6 || '长度不能小于6字符',
-          (v) => v && v.length <= 30 || '长度不能超过30字符',
-          (v) => self.testUsername()
-        ],
         nicknameRules: [
           (v) => !!v || '此项必须填写',
           (v) => v && v.length >= 3 || '长度不能小于6字符',
@@ -143,37 +135,29 @@
         ]
       }
     },
-   computed: {
-     baseUrl(){
+    computed: {
+      baseUrl() {
         return this.axios.baseURL
-     }
-   },
+      }
+    },
     methods: {
       cropUploadSuccess: function cropUploadSuccess(data, field) {
-        this.user.avatar = data.data+"?t=" + (new Date()).valueOf();
+        this.user.avatar = data.data + "?t=" + (new Date()).valueOf();
+        this.$store.commit('setAvatar', this.baseUrl + 'avatar/' + this.user.avatar);
       },
       toggleUpload() {
         this.uploadShow = !this.uploadShow;
       },
       getProfile() {
-        this.axios.get('setting/user/current').then(response => {
+        this.axios.get('setting/profile').then(response => {
           if (response.status == 200) {
-            this.user = response.data.data;
-          }
-        })
-      },
-      getAllDeparts() {
-        this.axios.get('setting/departments').then(response => {
-          if (response.status == 200) {
-            this.departments = response.data.data;
-            this.parentDeparts = response.data.data;
-          }
-        })
-      },
-      getRoles() {
-        this.axios.get('setting/roles').then(response => {
-          if (response.status == 200) {
-            this.roles = response.data.data;
+            this.user = response.data.user;
+            if (this.user.avatar) {
+              this.$store.commit('setAvatar', this.baseUrl + 'avatar/' + this.user.avatar);
+            }
+            this.departments = response.data.departments;
+            this.parentDeparts = response.data.departments;
+            this.roles = response.data.roles;
           }
         })
       },
@@ -293,8 +277,6 @@
     },
     mounted() {
       this.getProfile();
-      this.getAllDeparts();
-      this.getRoles();
     }
   }
 
@@ -320,8 +302,8 @@
   }
 
   .card__actions {
-    padding-top: 0!important;
-    padding-bottom: 15px!important;
+    padding-top: 0 !important;
+    padding-bottom: 15px !important;
   }
 
 </style>

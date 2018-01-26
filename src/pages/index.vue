@@ -113,7 +113,7 @@
         this.axios.post('index').then(response => {
           if (response.data.user) {
             this.username = response.data.user.username;
-            this.avatar = response.data.user.avatar;
+            this.avatar = this.axios.baseURL+'avatar/'+response.data.user.avatar;
             this.items = response.data.menus;
           }
         })

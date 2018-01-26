@@ -12,8 +12,11 @@
     <v-container fluid style="padding:10px;">
       <v-layout row wrap>
         <v-flex offset-md1 md2 sm3 xs12 style="padding-top:30px;" justify-center align-center class="text-xs-center">
-          <v-avatar :size="100" style="cursor: pointer;" @click="changeAvatar">
-            <img :src="user.avatar?user.avatar:'/static/avatar.png'" alt="avatar">
+          <imgUpload :maxSize="1024" :headers="headers" field="avatar" :withCredentials="true" :noRotate="false" @crop-upload-success="cropUploadSuccess"
+            :width="300" :height="300" url="http://localhost:9999/setting/profile/setAvatar" :value="uploadShow" v-model="uploadShow"
+            img-format="png"></imgUpload>
+          <v-avatar :size="100" style="cursor: pointer;" @click="toggleUpload">
+            <img :src="user.avatar?baseUrl+'avatar/'+user.avatar:'/static/avatar.png'" alt="avatar">
           </v-avatar>
           <p style="padding-top:20px;">
             <span class="headline">{{ user.nickname }}</span>
@@ -86,14 +89,20 @@
 </template>
 <script>
   import treemenu from '../../components/treemenu'
+  import myUpload from 'vue-image-crop-upload/upload-2.vue';
   export default {
     components: {
-      treemenu
+      treemenu,
+      'imgUpload': myUpload
     },
     data() {
       var self = this;
       return {
         valid: false,
+        uploadShow: false,
+        headers: {
+          Authorization: window.localStorage.getItem("token")
+        },
         user: {
           department: {}
         },
@@ -134,9 +143,17 @@
         ]
       }
     },
+   computed: {
+     baseUrl(){
+        return this.axios.baseURL
+     }
+   },
     methods: {
-      changeAvatar() {
-        alert('a')
+      cropUploadSuccess: function cropUploadSuccess(data, field) {
+        this.user.avatar = data.data+"?t=" + (new Date()).valueOf();
+      },
+      toggleUpload() {
+        this.uploadShow = !this.uploadShow;
       },
       getProfile() {
         this.axios.get('setting/user/current').then(response => {
@@ -250,7 +267,7 @@
             user: this.user
           }
           this.axios.post('setting/users', params).then(response => {
-            if (response.status == 200) {              
+            if (response.status == 200) {
               this.loading = false;
               this.store.commit('showSnackbar', {
                 msg: '操作成功',

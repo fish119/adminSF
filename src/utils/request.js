@@ -102,6 +102,7 @@ axios.interceptors.response.use(data => {
 });
 
 export default {
+  baseURL:axios.defaults.baseURL,
   get(url, param) {
     return new Promise((resolve, reject) => {
       axios({

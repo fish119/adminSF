@@ -235,7 +235,7 @@
         ]
       }
     },
-     computed: {
+    computed: {
       baseUrl() {
         return this.axios.baseURL
       }
@@ -454,7 +454,7 @@
 </style>
 <style>
   .searchbar>label {
-    top: 0!important;
+    top: 0 !important;
   }
 
   .input-group {

@@ -36,6 +36,7 @@
   </v-container>
 </template>
 <script>
+import md5 from 'js-md5'
   export default {
     data() {
       return {
@@ -73,7 +74,7 @@
         if (this.$refs.form.validate()) {
           let params = {
             username: this.username,
-            password: this.password
+            password: md5(this.password)
           }
           this.axios.post('auth', params)
             .then(response => {

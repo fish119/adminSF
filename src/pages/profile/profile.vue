@@ -9,11 +9,11 @@
       </v-breadcrumbs>
       <v-divider></v-divider>
     </v-flex>
-    <v-container fluid style="padding:10px;">
+    <v-container fluid style="padding:0px!important;">
       <v-layout row wrap>
         <v-flex offset-md1 md2 sm3 xs12 style="padding-top:30px;" justify-center align-center class="text-xs-center">
           <imgUpload :maxSize="1024" :headers="headers" field="avatar" :withCredentials="true" :noRotate="false" @crop-upload-success="cropUploadSuccess"
-            ki="255" url="http://localhost:9999/setting/profile/setAvatar" :value="uploadShow" v-model="uploadShow" img-format="png"></imgUpload>
+            ki="255" :url="baseUrl+'setting/profile/setAvatar'" :value="uploadShow" v-model="uploadShow" img-format="png"></imgUpload>
           <v-avatar :size="100" style="cursor: pointer;" @click="toggleUpload">
             <img :src="user.avatar?baseUrl+'avatar/'+user.avatar:'/static/avatar.png'" alt="avatar">
           </v-avatar>

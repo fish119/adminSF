@@ -133,4 +133,8 @@
   }
 
 </script>
+<style scoped>
+::-webkit-scrollbar {display:none}
+</style>
+
 <style src="../assets/main.css" />

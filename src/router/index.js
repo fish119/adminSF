@@ -10,6 +10,7 @@ import authorities from '@/pages/settings/authorities'
 import roles from '@/pages/settings/roles'
 import departments from '@/pages/settings/departments'
 import profile from '@/pages/profile/profile'
+import dbmonitor from '@/pages/monitor/db'
 
 
 Vue.use(Router)
@@ -56,6 +57,10 @@ export default new Router({
       path: '/profile/profile',
       name: '/profile/profile',
       component: profile
+    }, {
+      path: '/monitor/dbmonitor',
+      name: '/monitor/dbmonitor',
+      component: dbmonitor
     }]
   }, {
     path: '/*',

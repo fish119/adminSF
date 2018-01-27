@@ -63,3 +63,13 @@ iframe{
   width: 100vw;
   height: 100vh;
 }
+.searchbar>label {
+  top: 0 !important;
+}
+.input-group {
+  padding-top: 0;
+}
+
+.input-group--text-field label {
+  top: 0;
+}

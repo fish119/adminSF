@@ -4,8 +4,8 @@
       <v-flex hidden-xs-only sm6>
         <v-breadcrumbs class="main-breadcrumbs">
           <v-icon slot="divider">chevron_right</v-icon>
-          <v-breadcrumbs-item v-for="item in breadcrumbsItems" :key="item.text" :disabled="item.disabled">
-            {{ item.text }}
+          <v-breadcrumbs-item v-for="item in breadcrumbsItems" :key="item" :disabled="item.disabled">
+            {{ item }}
           </v-breadcrumbs-item>
         </v-breadcrumbs>
       </v-flex>
@@ -156,13 +156,7 @@
         search: '',
         loading: false,
         totalItems: 10,
-        breadcrumbsItems: [{
-          text: '人员管理',
-          disabled: false
-        }, {
-          text: '用户管理',
-          disabled: false
-        }],
+        breadcrumbsItems: ['人员管理','用户管理'],
         pagination: {
           descending: false,
           page: 1,
@@ -449,20 +443,6 @@
   .tb-header {
     font-size: 14px;
     font-weight: 500;
-  }
-
-</style>
-<style>
-  .searchbar>label {
-    top: 0 !important;
-  }
-
-  .input-group {
-    padding-top: 0;
-  }
-
-  .input-group--text-field label {
-    top: 0;
   }
 
 </style>

@@ -11,6 +11,7 @@ import roles from '@/pages/settings/roles'
 import departments from '@/pages/settings/departments'
 import profile from '@/pages/profile/profile'
 import dbmonitor from '@/pages/monitor/db'
+import statemonitor from '@/pages/monitor/spa'
 import loggings from '@/pages/monitor/loggings'
 
 
@@ -62,11 +63,18 @@ export default new Router({
       path: '/monitor/dbmonitor',
       name: '/monitor/dbmonitor',
       component: dbmonitor
-    }, {
+    }, 
+    {
       path: '/monitor/loggings',
       name: '/monitor/loggings',
       component: loggings
-    }]
+    },
+    {
+      path: '/monitor/statemonitor',
+      name: '/monitor/statemonitor',
+      component: statemonitor
+    }
+  ]
   }, {
     path: '/*',
     redirect: '/404'

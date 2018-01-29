@@ -12,7 +12,7 @@
       <v-flex sm6 xs12>
         <v-layout row>
           <v-flex xs6 style="margin-right:10px;">
-            <v-select :items="levels" v-model="levelString" label="级别" single-line bottom clearable></v-select>
+            <v-select :items="levels" item-text="text" return-object item-value="value" v-model="levelString" label="级别" single-line bottom></v-select>
           </v-flex>
           <v-flex xs6>
             <v-text-field class="searchbar" style="padding-top: 0;" append-icon="search" label="Search" single-line hide-details v-model="search"></v-text-field>
@@ -36,11 +36,11 @@
         <template slot="items" slot-scope="props">
           <tr :active="props.selected" @click="props.selected = !props.selected">
             <td class="text-xs-center">{{ props.item.dateTime }}</td>
-            <td class="text-xs-center">{{ props.item.callerFilename }}</td>
-            <td class="text-xs-center">{{ props.item.callerMethod }}</td>
+            <td>{{ props.item.arg1 }}</td>
+            <td>{{ props.item.formattedMessage }}</td>
+            <td>{{ props.item.loggerName }}</td>
             <td class="text-xs-center">{{ props.item.levelString }}</td>
             <td class="text-xs-center">{{ props.item.arg0 }}</td>
-            <td class="text-xs-center">{{ props.item.arg1 }}</td>
             <td class="text-xs-center">{{ props.item.arg2 }}</td>
             <td class="text-xs-center">{{ props.item.arg3 }}</td>
           </tr>
@@ -75,7 +75,7 @@
         breadcrumbsItems: ['日志管理', '系统日志'],
         items: [],
         search: '',
-        levelString: '',
+        levelString: {},
         loading: false,
         totalItems: 10,
         pagination: {
@@ -87,13 +87,15 @@
         rows_per_page_items: [5, 10, 25, 50, 100],
         rows_per_page_text: "每页行数",
         levels: [{
-            text: 'INFO'
+            text: 'ALL',value:null
+          },{
+            text: 'INFO',value:'INFO'
           },
           {
-            text: 'WARN'
+            text: 'WARN',value:'WARN'
           },
           {
-            text: 'ERROR'
+            text: 'ERROR',value:'ERROR'
           }
         ],
         headers: [{
@@ -101,36 +103,35 @@
             align: 'center',
             value: 'timestmp'
           },{
-            text: 'Filename',
+            text: 'Url',
             align: 'center',
-            value: 'callerFilename'
-          },
-          {
-            text: 'Method',
+            value: 'arg1'
+          },{
+            text: 'Message',
             align: 'center',
-            value: 'callerMethod'
-          }, {
+            value: 'formattedMessage'
+          },{
+            text: 'LoggerName',
+            align: 'center',
+            value: 'loggerName'
+          },{
             text: 'Level',
             align: 'center',
             value: 'levelString'
-          }, {
-            text: 'arg0',
+          },
+          {
+            text: 'UserId',
             align: 'center',
             value: 'arg0'
-          }, {
-            text: 'arg1',
+          },   {
+            text: 'Args',
             align: 'center',
-            value: 'arg1'
+            value: 'arg2'
           },
           {
-            text: 'arg2',
+            text: 'IP',
             align: 'center',
-            value: 'arg2.name'
-          },
-          {
-            text: 'arg3',
-            align: 'center',
-            value: 'arg3.name'
+            value: 'arg3'
           }
         ],
         delDialog: false
@@ -139,7 +140,7 @@
     methods: {
       getLogs() {
         let params = {
-          level: this.levelString.text,
+          level: this.levelString.value,
           searchStr: this.search,
           page: this.pagination.page - 1,
           size: this.pagination.rowsPerPage,
@@ -193,7 +194,7 @@
       },
       levelString: {
         handler() {
-          console.log(this.levelString.text);
+          console.log(this.levelString.value);
           this.getLogs();
         }
       }

@@ -17,6 +17,7 @@
     "js-md5": "^0.7.3",
     "nprogress": "^0.2.0",
     "vue": "^2.5.2",
+    "vue-html5-editor": "^1.1.1",
     "vue-router": "^3.0.1",
     "vuetify": "^1.0.0-beta.2",
     "vuex": "^3.0.1"

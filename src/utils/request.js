@@ -4,7 +4,7 @@ import NProgress from './utils'
 import store from '../store/'
 // axios 配置
 axios.defaults.timeout = 5000;
-axios.defaults.baseURL = 'http://localhost:9999/';
+axios.defaults.baseURL = 'http://127.0.0.1:9999/';
 axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
 
 let cancel, promiseArr = {}

@@ -14,7 +14,8 @@ import dbmonitor from '@/pages/monitor/db'
 import statemonitor from '@/pages/monitor/spa'
 import loggings from '@/pages/monitor/loggings'
 import article_category from '@/pages/article/category'
-import article from '@/pages/article/article'
+import article_article from '@/pages/article/articles'
+import article_editor from '@/pages/article/edit'
 
 
 Vue.use(Router)
@@ -84,7 +85,12 @@ export default new Router({
       {
         path: '/article/article',
         name: '/article/article',
-        component: article
+        component: article_article
+      },
+      {
+        path: '/article/edit',
+        name: '/article/edit',
+        component: article_editor
       }
     ]
   }, {

@@ -73,3 +73,10 @@ iframe{
 .input-group--text-field label {
   top: 0;
 }
+.vue-html5-editor .fa {
+  font-size: 16px !important;
+}
+
+.vue-html5-editor>.content {
+  display: block !important;
+}

@@ -8,7 +8,7 @@ import store from './store'
 import axios from './utils/request'
 import 'babel-polyfill' //IE11 & Safari 9 support
 import themes from './components/theme'
-
+import VueHtml5Editor from 'vue-html5-editor'
 
 Vue.config.productionTip = false
 import colors from 'vuetify/es5/util/colors'
@@ -25,10 +25,24 @@ Vue.use(Vuetify, {
   }
 })
 Vue.use(themes);
-
-// this.$vuetify.theme.primary = '#4caf50'
 Vue.prototype.axios = axios;
 Vue.prototype.store = store;
+Vue.use(VueHtml5Editor, {
+  showModuleName: false,
+  image: {
+    sizeLimit: 1024 * 1024,
+    compress: {
+      quality: 80
+    },
+    upload: {
+      url: axios.baseURL+'article/imageUpload',
+      headers: {Authorization:window.localStorage.getItem("token")},
+      params: {},
+      fieldName: 'image'
+    }
+  }
+})
+
 
 /* eslint-disable no-new */
 new Vue({

@@ -41,7 +41,7 @@
         </template>
         <template slot="items" slot-scope="props">
           <tr :active="props.selected" @click="props.selected = !props.selected">
-            <td class="text-xs-center">{{ props.index }}</td>
+            <td class="text-xs-center">{{ props.index+1 }}</td>
             <td>{{ props.item.title }}</td>
             <td>{{ props.item.category.name }}</td>
             <td>{{ props.item.author.nickname }}</td>
@@ -49,13 +49,13 @@
             <td class="text-xs-center">{{ props.item.lastChangeTime }}</td>
             <td class="justify-center layout px-0">
               <v-tooltip top>
-                <v-btn icon class="mx-0" slot="activator">
+                <v-btn :to="{name:'/article/edit',params: {article:props.item,categories:categories}}" icon class="mx-0" slot="activator">
                   <v-icon color="secondary">edit</v-icon>
                 </v-btn>
                 <span>编辑</span>
               </v-tooltip>
               <v-tooltip top>
-                <v-btn icon class="mx-0" @click="article=props.item;delDialog=true;" slot="activator">
+                <v-btn icon class="mx-0" @click="selectIndex=props.index;article=props.item;delDialog=true;" slot="activator">
                   <v-icon color="accent">delete</v-icon>
                 </v-btn>
                 <span>删除</span>
@@ -70,8 +70,8 @@
           </v-layout>
         </template>
       </v-data-table>
-      <v-btn :to="{name:'/article/edit',params: {article:{},categories:categories}}" style="margin-bottom:40px;" color="accent" dark small absolute bottom
-        right fab fixed>
+      <v-btn :to="{name:'/article/edit',params: {article:{},categories:categories}}" style="margin-bottom:40px;" color="accent"
+        dark small absolute bottom right fab fixed>
         <v-icon>add</v-icon>
       </v-btn>
     </v-container>
@@ -95,6 +95,7 @@
     },
     data() {
       return {
+        selectIndex:null,
         selectOpen: false,
         items: [],
         categories: [],
@@ -174,7 +175,19 @@
         this.categorName = value.name;
       },
       del() {
-
+        this.loading = true;
+        this.axios.delete('article/articles/' + this.article.id).then(response => {
+          if (response.status == 200) {
+            this.items.splice(this.selectIndex,1);
+            this.loading = false;
+            this.store.commit('showSnackbar', {
+              msg: '操作成功',
+              color: 'success'
+            });
+            this.delDialog = false;
+            this.selectIndex = null;
+          }
+        })
       }
     },
     watch: {

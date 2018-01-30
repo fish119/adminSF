@@ -53,6 +53,7 @@
     data() {
       return {
         selectOpen: false,
+        categoryId:null,
         categorName: '',
         valid: false,
         article: {
@@ -76,10 +77,28 @@
         this.article.content = data;
       },
       save() {
-        console.log(this.article.content);
+        this.valid = false;
+        if (this.$refs.articleForm.validate()) {
+          this.article.category=null;
+          this.article.author = null;
+          console.log(this.article)
+          let params = {
+            categoryId:this.categoryId,
+            article: this.article
+          }
+          this.axios.post('article/articles', params).then(response => {
+            if (response.status == 200) {
+              this.article = response.data.data;
+              this.store.commit('showSnackbar', {
+                msg: '操作成功',
+                color: 'success'
+              });
+            }
+          })
+        }
       },
       categoryClick(value) {
-        this.category = value;
+        this.categoryId = value.id;
         this.selectOpen = false;
         this.categorName = value.name;
       }
@@ -91,6 +110,9 @@
         this.article = {
           title: ''
         };
+      }else{
+        this.categorName = this.article.category.name;
+        this.categoryId = this.article.category.id;
       }
     }
   }

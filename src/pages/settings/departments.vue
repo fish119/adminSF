@@ -39,7 +39,7 @@
                   </v-flex>
                   <v-flex md11>
                     <v-menu :full-width="true" v-model="selectOpen" :close-on-content-click="false" offset-y nudge-top="25">
-                      <v-text-field readonly :rules="[selectRules.parentNotSelf(parent,depart)]" v-model="parent.name" slot="activator"></v-text-field>
+                      <v-text-field clearable readonly :rules="[selectRules.parentNotSelf(parent,depart)]" v-model="parentName" slot="activator"></v-text-field>
                       <v-card>
                         <treemenu :data="items" :isParent="true" @handle="parentClick" style="padding-bottom:20px !important;"></treemenu>
                       </v-card>
@@ -102,6 +102,7 @@
     },
     data() {
       return {
+        parentName: null,
         dialog: false,
         valid: true,
         selectOpen: false,
@@ -114,7 +115,7 @@
           (v) => !!v || '此项必须填写',
           (v) => v && v.length <= 30 || '长度不能超过30字符'
         ],
-        breadcrumbsItems: ['人员管理','部门管理'],
+        breadcrumbsItems: ['人员管理', '部门管理'],
         selectRules: {
           parentNotSelf(parent, self) {
             if (parent && self && parent.id && self.id && parent.id == self.id) {
@@ -129,13 +130,16 @@
     methods: {
       departClick(value) {
         this.depart = value;
-        this.getParent(this.items, value.parent);
+        this.getParent(this.parents, value.parent);
+        this.parentName = this.parent.name;
       },
       parentClick(value) {
         this.parent = value;
+        this.parentName = this.parent.name;
         this.selectOpen = false;
       },
       getParent(arr, parentid) {
+        this.parent = this.clearDepartObj(this.parent)
         if (parentid) {
           if (!Number.isInteger(parentid)) {
             parentid = parentid.id;
@@ -146,11 +150,9 @@
                 this.parent = arr[i];
                 return;
               }
-              this.getParent(arr[i].children, parentid);
+              this.parent = this.getParent(arr[i].children, parentid);
             }
           }
-        } else {
-          this.clearDepartObj(this.parent)
         }
       },
       getAllDeparts() {
@@ -162,6 +164,10 @@
         })
       },
       saveDpart() {
+
+        if (!this.parentName) {
+          this.parent = null;
+        }
         this.valid = false;
         if (this.$refs.departForm.validate()) {
           var tmp = this.depart;
@@ -196,10 +202,12 @@
       addDepart() {
         this.depart = this.clearDepartObj();
         this.parent = this.clearDepartObj();
+        this.parentName = item.name;
       },
       parentSelected(item) {
         this.parent = item;
-        this.selectOpen = false;
+        this.parentName = item.name;
+        this.parentName = this.parent.name;
       },
       onHttpSuccess(response) {
         this.items = response.data.data;

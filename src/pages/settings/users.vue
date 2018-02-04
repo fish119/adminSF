@@ -92,7 +92,7 @@
                 <v-flex xs12 sm6 md4>
                   <!-- <v-text-field label="部门" v-model="user.department.name"></v-text-field> -->
                   <v-menu :full-width="true" v-model="departSelectOpen" :close-on-content-click="false" offset-y nudge-top="25">
-                    <v-text-field label="部门" readonly v-model="user.department.name" slot="activator"></v-text-field>
+                    <v-text-field label="部门" :rules="departRules" readonly v-model="user.department.name" slot="activator"></v-text-field>
                     <v-card>
                       <treemenu :data="departments" :isParent="false" @handle="departmentClick" style="padding-bottom:20px !important;"></treemenu>
                     </v-card>
@@ -226,6 +226,9 @@
           (v) => !!v || '此项必须填写',
           (v) => /^1[0-9]{10}$/.test(v) || '手机号码不正确',
           (v) => self.testPhone()
+        ],
+        departRules: [
+          (v) => !!v || '此项必须填写'
         ]
       }
     },
@@ -403,6 +406,7 @@
       },
       openEditDialog(item) {
         this.user = item ? item : {
+          id:null,
           department: {},
           roles: []
         };

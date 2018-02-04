@@ -81,7 +81,6 @@
         if (this.$refs.articleForm.validate()) {
           this.article.category=null;
           this.article.author = null;
-          console.log(this.article)
           let params = {
             categoryId:this.categoryId,
             article: this.article
@@ -110,7 +109,8 @@
         this.article = {
           title: ''
         };
-      }else{
+      }
+      if(this.article.category){
         this.categorName = this.article.category.name;
         this.categoryId = this.article.category.id;
       }

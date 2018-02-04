@@ -21,5 +21,7 @@ npm run build --report
 npm run e2e
 
 # run all tests
-npm test
+npm testS
 ```
+## Server Side (Springboot)
+[adminSS](https://github.com/fish119/adminSS)

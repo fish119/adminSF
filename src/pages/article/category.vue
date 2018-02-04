@@ -39,7 +39,7 @@
                   </v-flex>
                   <v-flex md11>
                     <v-menu :full-width="true" v-model="selectOpen" :close-on-content-click="false" offset-y nudge-top="25">
-                      <v-text-field readonly :rules="[selectRules.parentNotSelf(parent,category)]" v-model="parent.name" slot="activator"></v-text-field>
+                      <v-text-field readonly clearable :rules="[selectRules.parentNotSelf(parent,category)]" v-model="parentName" slot="activator"></v-text-field>
                       <v-card>
                         <treemenu :data="items" :isParent="true" @handle="parentClick" style="padding-bottom:20px !important;"></treemenu>
                       </v-card>
@@ -102,6 +102,7 @@
     },
     data() {
       return {
+        parentName: null,
         dialog: false,
         valid: true,
         selectOpen: false,
@@ -137,6 +138,9 @@
         })
       },
       save() {
+        if (!this.parentName) {
+          this.parent = null;
+        }
         this.valid = false;
         if (this.$refs.categoryForm.validate()) {
           var tmp = this.category;
@@ -153,7 +157,7 @@
           })
         }
       },
-      delCategory(){
+      delCategory() {
         this.axios.delete('article/categories/' + this.category.id).then(response => {
           if (response.status == 200) {
             this.onHttpSuccess(response);
@@ -165,6 +169,7 @@
       },
       parentClick(item) {
         this.parent = item;
+        this.parentName = item.name;
         this.selectOpen = false;
       },
       openDel() {
@@ -175,10 +180,12 @@
       addCategory() {
         this.category = this.cleaCategory();
         this.parent = this.cleaCategory();
+        this.parentName = this.parent.name;
       },
       categoryClick(value) {
         this.category = value;
-        this.getParent(this.items, value.parent);
+        this.getParent(this.parents, value.parent);
+        this.parentName = this.parent ? this.parent.name : null;
       },
       onHttpSuccess(response) {
         this.items = response.data.data;
@@ -188,6 +195,7 @@
         });
       },
       getParent(arr, parentid) {
+        this.parent = this.cleaCategory(this.parent);
         if (parentid) {
           if (!Number.isInteger(parentid)) {
             parentid = parentid.id;
@@ -198,11 +206,9 @@
                 this.parent = arr[i];
                 return;
               }
-              this.getParent(arr[i].children, parentid);
+              this.parent = this.getParent(arr[i].children, parentid);
             }
           }
-        } else {
-          this.cleaCategory(this.parent)
         }
       },
       cleaCategory() {

@@ -119,271 +119,297 @@
   </div>
 </template>
 <script>
-  import treemenu from '../../components/treemenu'
-  import myUpload from '../../components/imgUpload/upload.vue';
-  import md5 from 'js-md5'
-  export default {
-    components: {
-      treemenu,
-      'imgUpload': myUpload
-    },
-    data() {
-      var self = this;
-      return {
-        passErrMsg: [],
-        valid: false,
-        passValid: false,
-        showChangePassword: false,
-        showPassword: true,
-        showNewPass: true,
-        showConfirmPass: true,
-        uploadShow: false,
-        headers: {
-          Authorization: window.localStorage.getItem("token")
-        },
-        user: {
-          department: {}
-        },
-        departments: [],
-        roles: [],
-        departSelectOpen: false,
-        breadcrumbsItems: ['个人设置', '个人信息'],
-        phoneLoading: false,
-        phoneErrMsg: [],
-        usernameLoading: false,
-        usernameErrMsg: [],
-        nicknameLoading: false,
-        nicknameErrMsg: [],
-        emailLoading: false,
-        emailErrMsg: [],
-        nicknameRules: [
-          (v) => !!v || '此项必须填写',
-          (v) => v && v.length >= 3 || '长度不能小于6字符',
-          (v) => v && v.length <= 30 || '长度不能超过30字符',
-          (v) => self.testNickname()
-        ],
-        emailRules: [
-          (v) => !v || v.length >= 6 || '长度不能小于6字符',
-          (v) => !v || v.length <= 30 || '长度不能超过30字符',
-          (v) => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || '邮件地址不正确',
-          (v) => self.testEmail()
-        ],
-        phoneRules: [
-          (v) => !!v || '此项必须填写',
-          (v) => /^1[0-9]{10}$/.test(v) || '手机号码不正确',
-          (v) => self.testPhone()
-        ],
-        passwordRules: [
-          (v) => !!v || 'Password is required',
-          (v) => v && v.length >= 6 || 'Password must be more than 6 characters',
-          (v) => v && v.length <= 20 || 'Password must be less than 20 characters'
-        ],
-        confirmPasswordRules: [
-          (v) => !!v || 'Password is required',
-          (v) => v && v.length >= 6 || 'Password must be more than 6 characters',
-          (v) => v && v.length <= 20 || 'Password must be less than 20 characters',
-          (v) => self.testConfirmPass()
-        ],
-        confirmPassword: null,
-        oldPassword: null,
-        newPassword: null
-      }
-    },
-    computed: {
-      baseUrl() {
-        return this.axios.baseURL
-      }
-    },
-    methods: {
-      cropUploadSuccess: function cropUploadSuccess(data, field) {
-        this.user.avatar = data.data + "?t=" + (new Date()).valueOf();
-        this.$store.commit('setAvatar', this.baseUrl + 'avatar/' + this.user.avatar);
+import treemenu from "../../components/treemenu";
+import myUpload from "../../components/imgUpload/upload.vue";
+import md5 from "js-md5";
+export default {
+  components: {
+    treemenu,
+    imgUpload: myUpload
+  },
+  data() {
+    var self = this;
+    return {
+      passErrMsg: [],
+      valid: false,
+      passValid: false,
+      showChangePassword: false,
+      showPassword: true,
+      showNewPass: true,
+      showConfirmPass: true,
+      uploadShow: false,
+      headers: {
+        Authorization: window.localStorage.getItem("token")
       },
-      toggleUpload() {
-        this.uploadShow = !this.uploadShow;
+      user: {
+        department: {}
       },
-      getProfile() {
-        this.axios.get('setting/profile').then(response => {
-          if (response.status == 200) {
-            this.user = response.data.user;
-            if (this.user.avatar) {
-              this.$store.commit('setAvatar', this.baseUrl + 'avatar/' + this.user.avatar);
-            }
-            this.departments = response.data.departments;
-            this.parentDeparts = response.data.departments;
-            this.roles = response.data.roles;
+      departments: [],
+      roles: [],
+      departSelectOpen: false,
+      breadcrumbsItems: ["个人设置", "个人信息"],
+      phoneLoading: false,
+      phoneErrMsg: [],
+      usernameLoading: false,
+      usernameErrMsg: [],
+      nicknameLoading: false,
+      nicknameErrMsg: [],
+      emailLoading: false,
+      emailErrMsg: [],
+      nicknameRules: [
+        v => !!v || "此项必须填写",
+        v => (v && v.length >= 3) || "长度不能小于6字符",
+        v => (v && v.length <= 30) || "长度不能超过30字符",
+        v => self.testNickname()
+      ],
+      emailRules: [
+        v => !v || v.length >= 6 || "长度不能小于6字符",
+        v => !v || v.length <= 30 || "长度不能超过30字符",
+        v =>
+          !v ||
+          /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
+          "邮件地址不正确",
+        v => self.testEmail()
+      ],
+      phoneRules: [
+        v => !!v || "此项必须填写",
+        v => /^1[0-9]{10}$/.test(v) || "手机号码不正确",
+        v => self.testPhone()
+      ],
+      passwordRules: [
+        v => !!v || "Password is required",
+        v => (v && v.length >= 6) || "Password must be more than 6 characters",
+        v => (v && v.length <= 20) || "Password must be less than 20 characters"
+      ],
+      confirmPasswordRules: [
+        v => !!v || "Password is required",
+        v => (v && v.length >= 6) || "Password must be more than 6 characters",
+        v =>
+          (v && v.length <= 20) || "Password must be less than 20 characters",
+        v => self.testConfirmPass()
+      ],
+      confirmPassword: null,
+      oldPassword: null,
+      newPassword: null
+    };
+  },
+  computed: {
+    baseUrl() {
+      return this.axios.baseURL;
+    }
+  },
+  methods: {
+    cropUploadSuccess: function cropUploadSuccess(data, field) {
+      this.user.avatar = data.data + "?t=" + new Date().valueOf();
+      this.$store.commit(
+        "setAvatar",
+        this.baseUrl + "avatar/" + this.user.avatar
+      );
+    },
+    toggleUpload() {
+      this.uploadShow = !this.uploadShow;
+    },
+    getProfile() {
+      this.axios.get("setting/profile").then(response => {
+        if (response.status == 200) {
+          this.user = response.data.user;
+          if (this.user.avatar) {
+            this.$store.commit(
+              "setAvatar",
+              this.baseUrl + "avatar/" + this.user.avatar
+            );
           }
-        })
-      },
-      testUsername() {
-        if (!this.user || !this.user.id) {
-          this.user.id = 0;
+          this.departments = response.data.departments;
+          this.parentDeparts = response.data.departments;
+          this.roles = response.data.roles;
         }
-        if (this.user.username && this.user.username.length >= 6) {
-          this.userLoading = 'accent';
-          this.axios.get('setting/user/' + this.user.id + '/username/' + this.user.username).then(response => {
+      });
+    },
+    testUsername() {
+      if (!this.user || !this.user.id) {
+        this.user.id = 0;
+      }
+      if (this.user.username && this.user.username.length >= 6) {
+        this.userLoading = "accent";
+        this.axios
+          .get(
+            "setting/user/" + this.user.id + "/username/" + this.user.username
+          )
+          .then(response => {
             if (response.status == 200) {
-              this.usernameErrMsg = response.data.data ? [] : ['用户名已存在'];
+              this.usernameErrMsg = response.data.data ? [] : ["用户名已存在"];
               this.usernameLoading = false;
             }
-          })
-        } else {
-          this.usernameErrMsg = [];
-          this.usernameLoading = false;
-        }
-        return true;
-      },
-      testNickname() {
-        if (!this.user || !this.user.id) {
-          this.user.id = 0;
-        }
-        if (this.user.nickname && this.user.nickname.length >= 6) {
-          this.userLoading = 'accent';
-          this.axios.get('setting/user/' + this.user.id + '/nickname/' + this.user.nickname).then(response => {
+          });
+      } else {
+        this.usernameErrMsg = [];
+        this.usernameLoading = false;
+      }
+      return true;
+    },
+    testNickname() {
+      if (!this.user || !this.user.id) {
+        this.user.id = 0;
+      }
+      if (this.user.nickname && this.user.nickname.length >= 6) {
+        this.userLoading = "accent";
+        this.axios
+          .get(
+            "setting/user/" + this.user.id + "/nickname/" + this.user.nickname
+          )
+          .then(response => {
             if (response.status == 200) {
-              this.nicknameErrMsg = response.data.data ? [] : ['昵称已存在'];
+              this.nicknameErrMsg = response.data.data ? [] : ["昵称已存在"];
               this.nicknameLoading = false;
             }
-          })
-        } else {
-          this.nicknameErrMsg = [];
-          this.nicknameLoading = false;
-        }
-        return true;
-      },
-      testPhone() {
-        if (!this.user || !this.user.id) {
-          this.user.id = 0;
-        }
-        if (this.user.phone && this.user.phone.length == 11) {
-          this.phoneLoading = 'accent';
-          this.axios.get('setting/user/' + this.user.id + '/phone/' + this.user.phone).then(response => {
+          });
+      } else {
+        this.nicknameErrMsg = [];
+        this.nicknameLoading = false;
+      }
+      return true;
+    },
+    testPhone() {
+      if (!this.user || !this.user.id) {
+        this.user.id = 0;
+      }
+      if (this.user.phone && this.user.phone.length == 11) {
+        this.phoneLoading = "accent";
+        this.axios
+          .get("setting/user/" + this.user.id + "/phone/" + this.user.phone)
+          .then(response => {
             if (response.status == 200) {
-              this.phoneErrMsg = response.data.data ? [] : ['手机号码已存在'];
+              this.phoneErrMsg = response.data.data ? [] : ["手机号码已存在"];
               this.phoneLoading = false;
             }
-          })
+          });
+      } else {
+        this.phoneErrMsg = [];
+        this.phoneLoading = false;
+      }
+      return true;
+    },
+    testEmail() {
+      if (!this.user || !this.user.id) {
+        this.user.id = 0;
+      }
+      if (this.user.email && this.user.email.length > 6) {
+        this.emailLoading = "accent";
+        var url = encodeURI(
+          "setting/user/" + this.user.id + "/email?email=" + this.user.email
+        );
+        this.axios.get(url).then(response => {
+          if (response.status == 200) {
+            this.emailErrMsg = response.data.data ? [] : ["Email已存在"];
+            this.emailLoading = false;
+          }
+        });
+      } else {
+        this.emailErrMsg = [];
+        this.emailLoading = false;
+      }
+      return true;
+    },
+    testConfirmPass() {
+      if (
+        this.newPassword &&
+        this.newPassword.length >= 6 &&
+        this.confirmPassword &&
+        this.confirmPassword.length >= 6
+      ) {
+        if (this.newPassword === this.confirmPassword) {
+          this.passErrMsg = [];
         } else {
-          this.phoneErrMsg = [];
-          this.phoneLoading = false;
+          this.passErrMsg = ["两次输入的密码不一致"];
         }
-        return true;
-      },
-      testEmail() {
-        if (!this.user || !this.user.id) {
-          this.user.id = 0;
+      }
+      return true;
+    },
+    departmentClick(value) {
+      this.user.department = value;
+      this.departSelectOpen = false;
+    },
+    save() {
+      this.valid = false;
+      if (this.$refs.profileForm.validate()) {
+        if (this.user.department.children) {
+          this.user.department.children = null;
         }
-        if (this.user.email && this.user.email.length > 6) {
-          this.emailLoading = 'accent';
-          var url = encodeURI('setting/user/' + this.user.id + '/email?email=' + this.user.email);
-          this.axios.get(url).then(response => {
-            if (response.status == 200) {
-              this.emailErrMsg = response.data.data ? [] : ['Email已存在'];
-              this.emailLoading = false;
-            }
-          })
-        } else {
-          this.emailErrMsg = [];
-          this.emailLoading = false;
+        if (this.user.department.parent) {
+          this.user.department.parent = null;
         }
-        return true;
-      },
-      testConfirmPass() {
-        if (this.newPassword && this.newPassword.length >= 6 && this.confirmPassword && this.confirmPassword.length >=
-          6) {
-          if (this.newPassword === this.confirmPassword) {
-            this.passErrMsg = [];
-          } else {
-            this.passErrMsg = ['两次输入的密码不一致'];
+        let params = {
+          user: this.user
+        };
+        this.axios.post("setting/users", params).then(response => {
+          if (response.status == 200) {
+            this.store.commit("showSnackbar", {
+              msg: "操作成功",
+              color: "success"
+            });
           }
-        }
-        return true;
-      },
-      departmentClick(value) {
-        this.user.department = value;
-        this.departSelectOpen = false;
-      },
-      save() {
-        this.valid = false;
-        if (this.$refs.profileForm.validate()) {
-          if (this.user.department.children) {
-            this.user.department.children = null;
-          }
-          if (this.user.department.parent) {
-            this.user.department.parent = null;
-          }
-          let params = {
-            user: this.user
-          }
-          this.axios.post('setting/users', params).then(response => {
-            if (response.status == 200) {
-              this.store.commit('showSnackbar', {
-                msg: '操作成功',
-                color: 'success'
-              });
-            }
-          })
-        }
-      },
-      changePassword() {
-        this.passValid = false;
-        if (this.$refs.changePasswordForm.validate()) {
-          this.axios.post('setting/profile/changePassword', {
+        });
+      }
+    },
+    changePassword() {
+      this.passValid = false;
+      if (this.$refs.changePasswordForm.validate()) {
+        this.axios
+          .post("setting/profile/changePassword", {
             username: this.user.username,
             oldPassword: md5(this.oldPassword),
             newPassword: md5(this.newPassword)
-          }).then(response => {
+          })
+          .then(response => {
             if (response.status == 200) {
               this.showChangePassword = false;
-              this.store.commit('showSnackbar', {
-                msg: '操作成功，请重新登录',
-                color: 'success'
+              this.store.commit("showSnackbar", {
+                msg: "操作成功，请重新登录",
+                color: "success"
               });
               setTimeout(() => {
-                window.localStorage.removeItem('token');
-                this.$router.push('/login');
+                window.localStorage.removeItem("token");
+                this.$router.push("/login");
               }, 2000);
             }
-          })
-        }
-      },
-      initShowChangePass() {
-        this.showChangePassword = false;
-        this.oldPassword = null;
-        this.newPassword = null;
-        this.confirmPassword = null;
-        this.passErrMsg = [];
+          });
       }
     },
-    mounted() {
-      this.getProfile();
+    initShowChangePass() {
+      this.showChangePassword = false;
+      this.oldPassword = null;
+      this.newPassword = null;
+      this.confirmPassword = null;
+      this.passErrMsg = [];
     }
+  },
+  mounted() {
+    this.getProfile();
   }
-
+};
 </script>
 <style scoped>
-  p {
-    font-size: 14px !important;
-    font-weight: 500;
-  }
+p {
+  font-size: 14px !important;
+  font-weight: 500;
+}
 
-  .subtext {
-    font-size: 14px;
-    font-weight: 500;
-    color: rgba(0, 0, 0, .54);
-  }
+.subtext {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.54);
+}
 
-  .headline {
-    font-size: 20px !important;
-  }
+.headline {
+  font-size: 20px !important;
+}
 
-  .card__title {
-    padding-bottom: 20px !important;
-  }
+.card__title {
+  padding-bottom: 20px !important;
+}
 
-  .card__actions {
-    padding-top: 0 !important;
-    padding-bottom: 15px !important;
-  }
-
+.card__actions {
+  padding-top: 0 !important;
+  padding-bottom: 15px !important;
+}
 </style>

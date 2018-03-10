@@ -20,7 +20,7 @@
                 <v-text-field label="标题" :rules="requiredRules" maxlength="30" v-model="article.title"></v-text-field>
               </v-flex>
               <v-flex xs12 sm5 offset-sm1>
-                <v-menu :full-width="true" v-model="selectOpen" :close-on-content-click="false" offset-y nudge-top="25">
+                <v-menu style="z-index:9999;" :full-width="true" v-model="selectOpen" :close-on-content-click="false" offset-y nudge-top="25">
                   <v-text-field :rules="requiredRules" clearable placeholder="分类" readonly v-model="categorName" slot="activator"></v-text-field>
                   <v-card>
                     <treemenu :data="categories" :isParent="true" @handle="categoryClick" style="padding-bottom:20px !important;"></treemenu>

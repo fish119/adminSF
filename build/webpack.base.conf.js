@@ -13,7 +13,7 @@ function resolve(dir) {
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
-    app: './src/main.js'
+    app: ['babel-polyfill','./src/main.js']
   },
   output: {
     path: config.build.assetsRoot,
@@ -30,7 +30,15 @@ module.exports = {
     }
   },
   module: {
-    rules: [{
+    rules: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        options: {
+          babelrc: false,
+          presets: ['env', 'stage-2']
+        }
+      },{
         test: /\.vue$/,
         loader: 'vue-loader',
         options: vueLoaderConfig

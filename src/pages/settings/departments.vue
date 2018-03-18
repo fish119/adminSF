@@ -202,7 +202,9 @@
       addDepart() {
         this.depart = this.clearDepartObj();
         this.parent = this.clearDepartObj();
-        this.parentName = item.name;
+        if (this.parent) {
+          this.parentName = this.parent.name;
+        }
       },
       parentSelected(item) {
         this.parent = item;

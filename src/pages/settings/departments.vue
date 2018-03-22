@@ -95,149 +95,148 @@
   </div>
 </template>
 <script>
-  import treemenu from '../../components/treemenu'
-  export default {
-    components: {
-      treemenu
+import treemenu from "../../components/treemenu";
+export default {
+  components: {
+    treemenu
+  },
+  data() {
+    return {
+      parentName: null,
+      dialog: false,
+      valid: true,
+      selectOpen: false,
+      items: [],
+      depart: {
+        sort: 0
+      },
+      parent: {},
+      requiredRules: [
+        v => !!v || "此项必须填写",
+        v => (v && v.length <= 30) || "长度不能超过30字符"
+      ],
+      breadcrumbsItems: ["人员管理", "部门管理"],
+      selectRules: {
+        parentNotSelf(parent, self) {
+          if (parent && self && parent.id && self.id && parent.id == self.id) {
+            return "不能选择自己为父级";
+          } else {
+            return true;
+          }
+        }
+      }
+    };
+  },
+  methods: {
+    departClick(value) {
+      this.depart = value;
+      this.getParent(this.parents, value.parent);
+      this.parentName = this.parent.name;
     },
-    data() {
-      return {
-        parentName: null,
-        dialog: false,
-        valid: true,
-        selectOpen: false,
-        items: [],
-        depart: {
-          sort: 0
-        },
-        parent: {},
-        requiredRules: [
-          (v) => !!v || '此项必须填写',
-          (v) => v && v.length <= 30 || '长度不能超过30字符'
-        ],
-        breadcrumbsItems: ['人员管理', '部门管理'],
-        selectRules: {
-          parentNotSelf(parent, self) {
-            if (parent && self && parent.id && self.id && parent.id == self.id) {
-              return '不能选择自己为父级';
-            } else {
-              return true;
+    parentClick(value) {
+      this.parent = value;
+      this.parentName = this.parent.name;
+      this.selectOpen = false;
+    },
+    getParent(arr, parentid) {
+      this.parent = this.clearDepartObj(this.parent);
+      if (parentid) {
+        if (!Number.isInteger(parentid)) {
+          parentid = parentid.id;
+        }
+        if (arr && arr.length > 0) {
+          for (var i = 0; i < arr.length; i++) {
+            if (arr[i].id === parentid) {
+              this.parent = arr[i];
+              return;
             }
+            this.parent = this.getParent(arr[i].children, parentid);
           }
         }
       }
     },
-    methods: {
-      departClick(value) {
-        this.depart = value;
-        this.getParent(this.parents, value.parent);
-        this.parentName = this.parent.name;
-      },
-      parentClick(value) {
-        this.parent = value;
-        this.parentName = this.parent.name;
-        this.selectOpen = false;
-      },
-      getParent(arr, parentid) {
-        this.parent = this.clearDepartObj(this.parent)
-        if (parentid) {
-          if (!Number.isInteger(parentid)) {
-            parentid = parentid.id;
-          }
-          if (arr && arr.length > 0) {
-            for (var i = 0; i < arr.length; i++) {
-              if (arr[i].id === parentid) {
-                this.parent = arr[i];
-                return;
-              }
-              this.parent = this.getParent(arr[i].children, parentid);
-            }
-          }
+    getAllDeparts() {
+      this.axios.get("setting/departments").then(response => {
+        if (response.status == 200) {
+          this.items = response.data.data;
+          this.parents = response.data.data;
         }
-      },
-      getAllDeparts() {
-        this.axios.get('setting/departments').then(response => {
+      });
+    },
+    saveDpart() {
+      if (!this.parentName) {
+        this.parent = null;
+      }
+      this.valid = false;
+      if (this.$refs.departForm.validate()) {
+        var tmp = this.depart;
+        tmp.parent = null;
+        tmp.children = null;
+        let params = {
+          parentId: this.parent == null ? null : this.parent.id,
+          department: tmp
+        };
+        this.axios.post("setting/departments", params).then(response => {
           if (response.status == 200) {
-            this.items = response.data.data;
-            this.parents = response.data.data;
+            this.onHttpSuccess(response);
           }
-        })
-      },
-      saveDpart() {
-
-        if (!this.parentName) {
-          this.parent = null;
-        }
-        this.valid = false;
-        if (this.$refs.departForm.validate()) {
-          var tmp = this.depart;
-          tmp.parent = null;
-          tmp.children = null;
-          let params = {
-            parentId: this.parent == null ? null : this.parent.id,
-            department: tmp
-          }
-          this.axios.post('setting/departments', params).then(response => {
-            if (response.status == 200) {
-              this.onHttpSuccess(response);
-            }
-          })
-        }
-      },
-      delDepart() {
-        this.axios.delete('setting/department/' + this.depart.id).then(response => {
+        });
+      }
+    },
+    delDepart() {
+      this.axios
+        .delete("setting/department/" + this.depart.id)
+        .then(response => {
           if (response.status == 200) {
             this.onHttpSuccess(response);
             this.dialog = false;
             this.depart = this.clearDepartObj();
             this.parent = this.clearDepartObj();
           }
-        })
-      },
-      openDel() {
-        if (this.depart != null && this.depart.id != null) {
-          this.dialog = true;
-        }
-      },
-      addDepart() {
-        this.depart = this.clearDepartObj();
-        this.parent = this.clearDepartObj();
-        if (this.parent) {
-          this.parentName = this.parent.name;
-        }
-      },
-      parentSelected(item) {
-        this.parent = item;
-        this.parentName = item.name;
-        this.parentName = this.parent.name;
-      },
-      onHttpSuccess(response) {
-        this.items = response.data.data;
-        this.store.commit('showSnackbar', {
-          msg: '操作成功',
-          color: 'success'
         });
-      },
-      clearDepartObj() {
-        return {
-          id: null,
-          name: null,
-          sort: 0,
-          children: [],
-          parent: null
-        }
+    },
+    openDel() {
+      if (this.depart != null && this.depart.id != null) {
+        this.dialog = true;
       }
     },
-    mounted() {
-      this.getAllDeparts();
+    addDepart() {
+      this.depart = this.clearDepartObj();
       this.parent = this.clearDepartObj();
+      if (this.parent) {
+        this.parentName = this.parent.name;
+      }
+    },
+    parentSelected(item) {
+      this.parent = item;
+      this.parentName = item.name;
+      this.parentName = this.parent.name;
+    },
+    onHttpSuccess(response) {
+      this.items = response.data.data;
+      this.store.commit("showSnackbar", {
+        msg: "操作成功",
+        color: "success"
+      });
+    },
+    clearDepartObj() {
+      return {
+        id: null,
+        name: null,
+        sort: 0,
+        children: [],
+        parent: null
+      };
     }
+  },
+  mounted() {
+    this.getAllDeparts();
+    this.parent = this.clearDepartObj();
   }
-
+};
 </script>
 <style>
-  .vue-tree-item {
-    margin: 10px !important;
-  }
-
+.vue-tree-item {
+  margin: 10px !important;
+}
 </style>

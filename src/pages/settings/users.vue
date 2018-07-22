@@ -38,7 +38,7 @@
             <td class="text-xs-center">{{ props.item.nickname }}</td>
             <td class="text-xs-center">{{ props.item.phone }}</td>
             <td class="text-xs-center">{{ props.item.email }}</td>
-            <td class="text-xs-center">{{ props.item.department.name }}</td>
+            <td class="text-xs-center">{{ props.item.department?props.item.department.name:'' }}</td>
             <td class="justify-center layout px-0">
               <v-tooltip top>
                 <v-btn icon class="mx-0" @click="openEditDialog(props.item)" slot="activator">
